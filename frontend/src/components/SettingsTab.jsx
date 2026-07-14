@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { tripService } from '../services/tripService';
 
-export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActiveTab }) => {
+export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActiveTab, role }) => {
   const [settingsForm, setSettingsForm] = useState({
     name: trip?.name || '',
     destination: trip?.destination || 'Goa, India',
@@ -104,7 +104,8 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
           </div>
 
           {/* Budget Settings */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+          {role === 'ADMIN' && (
+            <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center text-rose-550">
@@ -152,12 +153,14 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
               </div>
             </div>
           </div>
+        )}
         </div>
 
         {/* Right Column Settings */}
         <div className="space-y-6">
           {/* Permissions */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+          {role === 'ADMIN' && (
+            <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
               <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -191,7 +194,8 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
                 </select>
               </div>
             </div>
-          </div>
+            </div>
+)}
 
           {/* Preferences */}
           <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">

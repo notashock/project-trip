@@ -439,6 +439,7 @@ const TripDashboard = () => {
             members={members}
             fetchData={fetchData}
             setActiveTab={setActiveTab}
+            role={role}
           />
         )}
 
