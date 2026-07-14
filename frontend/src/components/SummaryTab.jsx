@@ -32,64 +32,66 @@ export const SummaryTab = ({
     <div className="space-y-8">
       
       {/* Header Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         
         {/* CARD 1: TOTAL TRIP TARGET */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-[#056449]/15 transition-all duration-200">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-[#056449]/15 transition-all duration-200">
           <div>
-            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Total Trip Target</h3>
-            <p className="text-3xl font-black text-slate-900">₹{totalTripTarget.toLocaleString()}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">{members.length} members @ ₹{Math.round(adjustedTarget).toLocaleString()}</span>
+            <h3 className="text-slate-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Total Target</h3>
+            <p className="text-xl sm:text-3xl font-black text-slate-900">₹{totalTripTarget.toLocaleString()}</p>
+            <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-1.5">{members.length} members @ ₹{Math.round(adjustedTarget).toLocaleString()}</span>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100 flex-shrink-0">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
             </svg>
           </div>
         </div>
 
         {/* CARD 2: PENDING / OWED */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-amber-500/15 transition-all duration-200">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-amber-500/15 transition-all duration-200">
           <div>
-            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Pending / Owed</h3>
-            <p className="text-3xl font-black text-amber-600">₹{(myOwes > 0 ? myOwes : totalPending).toLocaleString()}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5 flex items-center gap-1">
-              <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <h3 className="text-slate-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Pending / Owed</h3>
+            <p className="text-xl sm:text-3xl font-black text-amber-600">₹{(myOwes > 0 ? myOwes : totalPending).toLocaleString()}</p>
+            <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-1.5 flex items-center gap-1">
+              <svg className="w-3 h-3 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              {myOwes > 0 ? `Your share • Collected: ₹${totalPooled.toLocaleString()}` : `Collected: ₹${totalPooled.toLocaleString()}`}
+              <span className="truncate max-w-[80px] sm:max-w-none">
+                {myOwes > 0 ? `Your share` : `Total`}
+              </span>
             </span>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100/50">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100/50 flex-shrink-0">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
         </div>
 
         {/* CARD 3: AVAILABLE BALANCE */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-[#056449]/15 transition-all duration-200">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-[#056449]/15 transition-all duration-200">
           <div>
-            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Available Balance</h3>
-            <p className="text-3xl font-black text-[#056449]">₹{availableBalance.toLocaleString()}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">Ready to spend</span>
+            <h3 className="text-slate-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Available</h3>
+            <p className="text-xl sm:text-3xl font-black text-[#056449]">₹{availableBalance.toLocaleString()}</p>
+            <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-1.5">Ready to spend</span>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#056449] border border-emerald-100/50">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-50 flex items-center justify-center text-[#056449] border border-emerald-100/50 flex-shrink-0">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
           </div>
         </div>
 
         {/* CARD 4: TOTAL EXPENSES */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-rose-500/15 transition-all duration-200">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex justify-between items-start relative group hover:border-rose-500/15 transition-all duration-200">
           <div>
-            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Total Expenses</h3>
-            <p className="text-3xl font-black text-rose-550">₹{totalExpenses.toLocaleString()}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">From ₹{(totalPooled/1000).toFixed(0)}K collected</span>
+            <h3 className="text-slate-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Total Spent</h3>
+            <p className="text-xl sm:text-3xl font-black text-rose-550">₹{totalExpenses.toLocaleString()}</p>
+            <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-1.5">From collected</span>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-550 border border-rose-100/50">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-rose-50 flex items-center justify-center text-rose-550 border border-rose-100/50 flex-shrink-0">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
@@ -98,28 +100,28 @@ export const SummaryTab = ({
       </div>
 
       {/* Main Grid split */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         
         {/* Left Column: Member Progress */}
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-          <div className="flex justify-between items-center border-b border-slate-100 pb-5 mb-6">
+        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-4 sm:pb-5 mb-4 sm:mb-6">
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-[#056449]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#056449]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <h2 className="text-lg font-extrabold text-slate-900">Member Progress</h2>
+              <h2 className="text-sm sm:text-lg font-extrabold text-slate-900">Member Progress</h2>
             </div>
             {canManageData && (
               <button
                 onClick={() => { setContributionForm({ id: null, userId: '', amount: '', note: '' }); setShowContributionModal(true); }}
-                className="bg-[#056449] hover:bg-[#04523b] text-white px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                className="bg-[#056449] hover:bg-[#04523b] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition flex items-center gap-1 cursor-pointer"
               >
                 + Add Contribution
               </button>
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {members.map(m => {
               const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
               const owes = m.owes !== undefined ? m.owes : 0;
@@ -175,14 +177,14 @@ export const SummaryTab = ({
         </div>
 
         {/* Right Column: Recent Expenses */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-center border-b border-slate-100 pb-5 mb-6">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4 sm:pb-5 mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-rose-550" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-rose-550" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h2 className="text-lg font-extrabold text-slate-900">Recent Expenses</h2>
+                <h2 className="text-sm sm:text-lg font-extrabold text-slate-900">Recent Expenses</h2>
               </div>
             </div>
 

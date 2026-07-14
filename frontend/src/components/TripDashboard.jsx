@@ -8,6 +8,13 @@ import { MembersTab } from './MembersTab';
 import { SettingsTab } from './SettingsTab';
 import { ContributionsTab } from './ContributionsTab';
 import Navbar from './Navbar';
+import { CustomSelect } from './CustomSelect';
+import { ContributionModal } from './ContributionModal';
+import { ExpenseModal } from './ExpenseModal';
+import { ExpenseDetailModal } from './ExpenseDetailModal';
+import { ContributionDetailModal } from './ContributionDetailModal';
+import { MemberDetailModal } from './MemberDetailModal';
+import { Footer } from './Footer';
 
 const TripDashboard = () => {
   const { token, user } = useContext(AuthContext);
@@ -56,6 +63,12 @@ const TripDashboard = () => {
   const [showEditMemberModal, setShowEditMemberModal] = useState(false);
   const [tempPassword, setTempPassword] = useState('');
   const [tempPasswordTitle, setTempPasswordTitle] = useState('Account Created Successfully!');
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [showExpenseDetailModal, setShowExpenseDetailModal] = useState(false);
+  const [selectedContribution, setSelectedContribution] = useState(null);
+  const [showContributionDetailModal, setShowContributionDetailModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showMemberDetailModal, setShowMemberDetailModal] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -175,6 +188,10 @@ const TripDashboard = () => {
 
   const handleContributionSubmit = async (e) => {
     e.preventDefault();
+    if (!contributionForm.userId) {
+      alert('Please select a member');
+      return;
+    }
     try {
       const payload = {
         userId: parseInt(contributionForm.userId),
@@ -350,7 +367,7 @@ const TripDashboard = () => {
       </Navbar>
 
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-6 mt-12">
+      <div className="max-w-6xl mx-auto px-6 mt-12 pb-24 md:pb-12">
 
         {/* Tab Contents */}
         {activeTab === 'overview' && (
@@ -390,6 +407,10 @@ const TripDashboard = () => {
             setShowExpenseModal={setShowExpenseModal}
             handleExpenseDelete={handleExpenseDelete}
             trip={trip}
+            onExpenseClick={(e) => {
+              setSelectedExpense(e);
+              setShowExpenseDetailModal(true);
+            }}
           />
         )}
 
@@ -406,6 +427,10 @@ const TripDashboard = () => {
             setShowMemberModal={setShowMemberModal}
             fetchMemberPassword={fetchMemberPassword}
             handleMemberRemove={handleMemberRemove}
+            onMemberClick={(m) => {
+              setSelectedMember(m);
+              setShowMemberDetailModal(true);
+            }}
           />
         )}
 
@@ -428,6 +453,10 @@ const TripDashboard = () => {
             role={role}
             pooledByUser={pooledByUser}
             adjustedTarget={adjustedTarget}
+            onContributionClick={(c) => {
+              setSelectedContribution(c);
+              setShowContributionDetailModal(true);
+            }}
           />
         )}
 
@@ -472,61 +501,62 @@ const TripDashboard = () => {
 
       {/* Add Member Modal */}
       {showMemberModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-white border border-slate-200 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-slate-700">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-3xl w-full max-w-sm shadow-2xl text-slate-700 flex flex-col max-h-[90vh]">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">Add Member</h3>
             <p className="text-slate-400 text-xs mb-6">Invite someone to join this trip dashboard</p>
             
-            <form onSubmit={handleMemberSubmit} className="space-y-4">
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Email Address</label>
-                <input
-                  type="email"
-                  value={memberForm.email}
-                  onChange={(e) => setMemberForm({ ...memberForm, email: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                  placeholder="name@email.com"
-                  required
-                />
+            <form onSubmit={handleMemberSubmit} className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 py-1">
+                <div>
+                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={memberForm.email}
+                    onChange={(e) => setMemberForm({ ...memberForm, email: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
+                    placeholder="name@email.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Name (Optional)</label>
+                  <input
+                    type="text"
+                    value={memberForm.name}
+                    onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
+                    placeholder="User's name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Role</label>
+                  <CustomSelect
+                    value={memberForm.role}
+                    onChange={(val) => setMemberForm({ ...memberForm, role: val })}
+                    options={[
+                      { value: 'CONTRIBUTOR', label: 'Viewer (Contributor)' },
+                      { value: 'MANAGER', label: 'Manager' },
+                      { value: 'ADMIN', label: 'Admin' }
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Custom Tag / Description</label>
+                  <input
+                    type="text"
+                    value={memberForm.customTag}
+                    onChange={(e) => setMemberForm({ ...memberForm, customTag: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
+                    placeholder="e.g. Organizer, Driver, Chef"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Name (Optional)</label>
-                <input
-                  type="text"
-                  value={memberForm.name}
-                  onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                  placeholder="User's name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Role</label>
-                <select
-                  value={memberForm.role}
-                  onChange={(e) => setMemberForm({ ...memberForm, role: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                  required
-                >
-                  <option value="CONTRIBUTOR">Viewer (Contributor)</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Custom Tag / Description</label>
-                <input
-                  type="text"
-                  value={memberForm.customTag}
-                  onChange={(e) => setMemberForm({ ...memberForm, customTag: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                  placeholder="e.g. Organizer, Driver, Chef"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 mt-8">
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 flex-shrink-0">
                 <button type="button" onClick={() => setShowMemberModal(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-250 text-slate-600 rounded-xl transition text-sm font-semibold cursor-pointer">Cancel</button>
                 <button type="submit" className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm">Invite</button>
               </div>
@@ -537,38 +567,39 @@ const TripDashboard = () => {
 
       {/* Edit Member Modal */}
       {showEditMemberModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-white border border-slate-200 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-slate-700">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-3xl w-full max-w-sm shadow-2xl text-slate-700 flex flex-col max-h-[90vh]">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">Edit Member</h3>
             <p className="text-slate-400 text-xs mb-6">Modify details for this trip member</p>
             
-            <form onSubmit={handleEditMemberSubmit} className="space-y-4">
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Role</label>
-                <select
-                  value={editMemberForm.role}
-                  onChange={(e) => setEditMemberForm({ ...editMemberForm, role: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                  required
-                >
-                  <option value="CONTRIBUTOR">Viewer (Contributor)</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
+            <form onSubmit={handleEditMemberSubmit} className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 py-1">
+                <div>
+                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Role</label>
+                  <CustomSelect
+                    value={editMemberForm.role}
+                    onChange={(val) => setEditMemberForm({ ...editMemberForm, role: val })}
+                    options={[
+                      { value: 'CONTRIBUTOR', label: 'Viewer (Contributor)' },
+                      { value: 'MANAGER', label: 'Manager' },
+                      { value: 'ADMIN', label: 'Admin' }
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Custom Tag / Description</label>
+                  <input
+                    type="text"
+                    value={editMemberForm.customTag}
+                    onChange={(e) => setEditMemberForm({ ...editMemberForm, customTag: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
+                    placeholder="e.g. Organizer, Driver, Chef"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Custom Tag / Description</label>
-                <input
-                  type="text"
-                  value={editMemberForm.customTag}
-                  onChange={(e) => setEditMemberForm({ ...editMemberForm, customTag: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                  placeholder="e.g. Organizer, Driver, Chef"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 mt-8">
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 flex-shrink-0">
                 <button type="button" onClick={() => setShowEditMemberModal(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-255 text-slate-600 rounded-xl transition text-sm font-semibold cursor-pointer">Cancel</button>
                 <button type="submit" className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm">Save</button>
               </div>
@@ -576,340 +607,52 @@ const TripDashboard = () => {
           </div>
         </div>
       )}
-
       {/* Contribution Modal */}
-      {showContributionModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6 overflow-y-auto">
-          <div className="bg-white border border-slate-200 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-slate-700 my-8">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">{contributionForm.id ? 'Edit Record' : 'Add Record'}</h3>
-            <p className="text-slate-400 text-xs mb-6">Select member and enter details to record deposit</p>
-            
-            <form onSubmit={handleContributionSubmit} className="space-y-4">
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Member</label>
-                <select
-                  value={contributionForm.userId}
-                  onChange={(e) => setContributionForm({ ...contributionForm, userId: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                  required
-                  disabled={!!contributionForm.id}
-                >
-                  <option value="">Select a member</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.userId}>{m.userName}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Amount (₹)</label>
-                <input
-                  type="number"
-                  value={contributionForm.amount}
-                  onChange={(e) => setContributionForm({ ...contributionForm, amount: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                  placeholder="5000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Note (Optional)</label>
-                <input
-                  type="text"
-                  value={contributionForm.note}
-                  onChange={(e) => setContributionForm({ ...contributionForm, note: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                  placeholder="Payment reference / Note"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Method</label>
-                  <select
-                    value={contributionForm.method}
-                    onChange={(e) => setContributionForm({ ...contributionForm, method: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                    required
-                  >
-                    <option value="UPI">UPI</option>
-                    <option value="Cash">Cash</option>
-                    <option value="Card">Card</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Status</label>
-                  <select
-                    value={contributionForm.status}
-                    onChange={(e) => setContributionForm({ ...contributionForm, status: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                    required
-                  >
-                    <option value="Verified">Verified</option>
-                    <option value="Pending">Pending</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-8">
-                <button type="button" onClick={() => setShowContributionModal(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-255 text-slate-600 rounded-xl transition text-sm font-semibold cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ContributionModal
+        isOpen={showContributionModal}
+        onClose={() => setShowContributionModal(false)}
+        onSubmit={handleContributionSubmit}
+        formData={contributionForm}
+        setFormData={setContributionForm}
+        members={members}
+      />
 
       {/* Expense Modal */}
-      {showExpenseModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6 overflow-y-auto">
-          <div className="bg-white border border-slate-200 p-8 rounded-3xl w-full max-w-lg shadow-2xl my-8 text-slate-700">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">{expenseForm.id ? 'Edit Expense' : 'Add Expense'}</h3>
-            <p className="text-slate-400 text-xs mb-6">Select a category and fill out details to log the expense</p>
-            
-            <form onSubmit={handleExpenseSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Title</label>
-                  <input
-                    type="text"
-                    value={expenseForm.title}
-                    onChange={(e) => setExpenseForm({ ...expenseForm, title: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                    placeholder="e.g., Airbnb, Flight ticket"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Category</label>
-                  <select
-                    value={expenseForm.category}
-                    onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                    required
-                  >
-                    <option value="TRAVEL">Travel</option>
-                    <option value="ACCOMMODATION">Accommodation</option>
-                    <option value="FOOD_AND_BEVERAGES">Food & Beverages</option>
-                    <option value="OTHERS">Others</option>
-                  </select>
-                </div>
-              </div>
+      <ExpenseModal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        onSubmit={handleExpenseSubmit}
+        formData={expenseForm}
+        setFormData={setExpenseForm}
+      />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Amount (₹)</label>
-                  <input
-                    type="number"
-                    value={expenseForm.amount}
-                    onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                    placeholder="1500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={expenseForm.date}
-                    onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                    required
-                  />
-                </div>
-              </div>
+      {/* Expense Detail Modal */}
+      <ExpenseDetailModal
+        isOpen={showExpenseDetailModal}
+        onClose={() => setShowExpenseDetailModal(false)}
+        expense={selectedExpense}
+        members={members}
+      />
 
-              {/* Conditional Fields: TRAVEL */}
-              {expenseForm.category === 'TRAVEL' && (
-                <div className="space-y-4 border-t border-slate-100 pt-4 mt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">From</label>
-                      <input
-                        type="text"
-                        value={expenseForm.travelFrom}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, travelFrom: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        placeholder="Departure City"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">To</label>
-                      <input
-                        type="text"
-                        value={expenseForm.travelTo}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, travelTo: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        placeholder="Destination City"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Departure Date & Time</label>
-                      <input
-                        type="datetime-local"
-                        value={expenseForm.travelStartDate}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, travelStartDate: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Arrival Date & Time</label>
-                      <input
-                        type="datetime-local"
-                        value={expenseForm.travelEndDate}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, travelEndDate: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+      {/* Contribution Detail Modal */}
+      <ContributionDetailModal
+        isOpen={showContributionDetailModal}
+        onClose={() => setShowContributionDetailModal(false)}
+        contribution={selectedContribution}
+        members={members}
+      />
 
-              {/* Conditional Fields: ACCOMMODATION */}
-              {expenseForm.category === 'ACCOMMODATION' && (
-                <div className="space-y-4 border-t border-slate-100 pt-4 mt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="sm:col-span-1">
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Place</label>
-                      <input
-                        type="text"
-                        value={expenseForm.place}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, place: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        placeholder="Hotel Name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Rooms</label>
-                      <input
-                        type="number"
-                        value={expenseForm.roomsCount}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, roomsCount: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        placeholder="No. of rooms"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Guests</label>
-                      <input
-                        type="number"
-                        value={expenseForm.peopleCount}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, peopleCount: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        placeholder="No. of people"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Check-in Date & Time</label>
-                      <input
-                        type="datetime-local"
-                        value={expenseForm.checkInDate}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, checkInDate: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Check-out Date & Time</label>
-                      <input
-                        type="datetime-local"
-                        value={expenseForm.checkOutDate}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, checkOutDate: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+      {/* Member Detail Modal */}
+      <MemberDetailModal
+        isOpen={showMemberDetailModal}
+        onClose={() => setShowMemberDetailModal(false)}
+        member={selectedMember}
+        pooledByUser={pooledByUser}
+        adjustedTarget={adjustedTarget}
+      />
 
-              {/* Conditional Fields: FOOD_AND_BEVERAGES */}
-              {expenseForm.category === 'FOOD_AND_BEVERAGES' && (
-                <div className="space-y-4 border-t border-slate-100 pt-4 mt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Place</label>
-                      <input
-                        type="text"
-                        value={expenseForm.place}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, place: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                        placeholder="Restaurant, Cafe"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Type</label>
-                      <select
-                        value={expenseForm.foodType}
-                        onChange={(e) => setExpenseForm({ ...expenseForm, foodType: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
-                        required
-                      >
-                        <option value="BREAKFAST">Breakfast</option>
-                        <option value="LUNCH">Lunch</option>
-                        <option value="DINNER">Dinner</option>
-                        <option value="FASTFOOD">Fast Food</option>
-                        <option value="SNACKS">Snacks</option>
-                        <option value="WATERBOTTLES">Water Bottles</option>
-                        <option value="DRINKS">Drinks</option>
-                        <option value="OTHERS">Others</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Place input for OTHERS and TRAVEL categories */}
-              {(expenseForm.category === 'OTHERS' || expenseForm.category === 'TRAVEL') && (
-                <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">Place / Location</label>
-                  <input
-                    type="text"
-                    value={expenseForm.place}
-                    onChange={(e) => setExpenseForm({ ...expenseForm, place: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-sm font-semibold"
-                    placeholder="e.g. airport, shop"
-                  />
-                </div>
-              )}
-
-              {/* Note Field (Optional / Free note space) */}
-              <div>
-                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">
-                  Note {expenseForm.category === 'OTHERS' ? '(Required details)' : '(Optional)'}
-                </label>
-                <textarea
-                  value={expenseForm.note}
-                  onChange={(e) => setExpenseForm({ ...expenseForm, note: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition h-20 resize-none text-xs font-medium"
-                  placeholder="Log extra details here..."
-                  required={expenseForm.category === 'OTHERS'}
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 mt-8">
-                <button type="button" onClick={() => setShowExpenseModal(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-255 text-slate-600 rounded-xl transition text-sm font-semibold cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
+      {/* Footer component */}
+      <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 };

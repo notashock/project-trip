@@ -18,7 +18,8 @@ export const ContributionsTab = ({
   handleFixAdjustedTarget,
   role,
   pooledByUser,
-  adjustedTarget
+  adjustedTarget,
+  onContributionClick
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [methodFilter, setMethodFilter] = useState('All'); // 'All', 'UPI', 'Cash', 'Card'
@@ -73,53 +74,50 @@ export const ContributionsTab = ({
     <div className="space-y-8">
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-4 sm:gap-6">
         
         {/* TOTAL COLLECTED */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
-            <span className="text-slate-455 text-[10px] font-bold uppercase tracking-wider block mb-4">Total Collected</span>
-            <h2 className="text-4xl font-black text-[#056449]">₹{totalPooled.toLocaleString()}</h2>
+            <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Collected</span>
+            <h2 className="text-sm sm:text-4xl font-black text-[#056449]">₹{totalPooled.toLocaleString()}</h2>
           </div>
-          <div className="mt-6">
-            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/30">
+          <div className="mt-4 sm:mt-6">
+            <div className="w-full bg-slate-100 h-1.5 sm:h-2.5 rounded-full overflow-hidden border border-slate-200/30">
               <div className="bg-[#056449] h-full rounded-full" style={{ width: `${Math.min((totalPooled / (totalTripTarget || 1)) * 100, 100)}%` }} />
             </div>
           </div>
         </div>
 
         {/* REMAINING TARGET */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
-            <span className="text-slate-455 text-[10px] font-bold uppercase tracking-wider block mb-4">Remaining Target</span>
-            <h2 className="text-4xl font-black text-amber-600">₹{totalPending.toLocaleString()}</h2>
+            <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Pending</span>
+            <h2 className="text-sm sm:text-4xl font-black text-amber-600">₹{totalPending.toLocaleString()}</h2>
           </div>
-          <div className="mt-6">
-            <span className="text-xs text-slate-455 font-semibold">
-              Total budget: ₹{totalTripTarget.toLocaleString()}
+          <div className="mt-4 sm:mt-6">
+            <span className="text-[9px] sm:text-xs text-slate-455 font-semibold truncate block">
+              Budget: ₹{totalTripTarget.toLocaleString()}
             </span>
           </div>
         </div>
 
         {/* NEXT MILESTONE */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
-            <span className="text-slate-455 text-[10px] font-bold uppercase tracking-wider block mb-4">Next Milestone</span>
-            <h2 className="text-4xl font-black text-slate-900">₹{nextMilestone.toLocaleString()}</h2>
+            <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Milestone</span>
+            <h2 className="text-sm sm:text-4xl font-black text-slate-900">₹{nextMilestone.toLocaleString()}</h2>
           </div>
-          <div className="mt-6 flex">
-            <span className="text-[10px] bg-slate-50 border border-slate-200/60 text-slate-600 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
-              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Due by {formattedMilestoneDate}
+          <div className="mt-4 sm:mt-6 flex">
+            <span className="text-[8px] sm:text-[10px] bg-slate-50 border border-slate-200/60 text-slate-600 font-extrabold px-1.5 py-0.5 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 shadow-sm truncate">
+              Due {formattedMilestoneDate}
             </span>
           </div>
         </div>
       </div>
 
       {/* Settlements & Target Lock */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-5 mb-6 gap-4">
           <div>
             <h3 className="text-sm font-extrabold text-slate-900">Settlements & Target Lock</h3>
@@ -205,11 +203,11 @@ export const ContributionsTab = ({
       </div>
 
       {/* Contribution Table Block */}
-      <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
         
         {/* Table Controls */}
-        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h3 className="font-extrabold text-slate-900 text-base">Contribution History</h3>
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">Contribution History</h3>
           
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
             {/* Search */}
@@ -289,9 +287,9 @@ export const ContributionsTab = ({
                   setContributionForm({ id: null, userId: '', amount: '', note: '', method: 'UPI', status: 'Verified' });
                   setShowContributionModal(true);
                 }}
-                className="bg-[#056449] hover:bg-[#04523b] text-white px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition shadow-sm active:scale-[0.98] cursor-pointer"
+                className="bg-[#056449] hover:bg-[#04523b] text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-extrabold flex items-center gap-1 sm:gap-1.5 transition shadow-sm active:scale-[0.98] cursor-pointer"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Add Contribution
@@ -304,13 +302,13 @@ export const ContributionsTab = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                <th className="px-6 py-4">Member</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Method</th>
-                <th className="px-6 py-4">Status</th>
-                {canManageData && <th className="px-6 py-4 text-right">Actions</th>}
+              <tr className="bg-slate-50 border-b border-slate-100 text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                <th className="px-4 py-3 sm:px-6 sm:py-4">Member</th>
+                <th className="px-4 py-3 sm:px-6 sm:py-4">Date</th>
+                <th className="px-4 py-3 sm:px-6 sm:py-4">Amount</th>
+                <th className="px-4 py-3 sm:px-6 sm:py-4">Method</th>
+                <th className="px-4 py-3 sm:px-6 sm:py-4">Status</th>
+                {canManageData && <th className="px-4 py-3 sm:px-6 sm:py-4 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-800">
@@ -327,9 +325,13 @@ export const ContributionsTab = ({
                   const initials = name.substring(0, 2).toUpperCase();
                   
                   return (
-                    <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr
+                      key={c.id}
+                      onClick={() => onContributionClick && onContributionClick(c)}
+                      className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                    >
                       {/* Member */}
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#056449] border border-emerald-100 flex items-center justify-center font-bold text-xs">
                             {initials}
@@ -339,17 +341,17 @@ export const ContributionsTab = ({
                       </td>
                       
                       {/* Date */}
-                      <td className="px-6 py-4 text-slate-500 font-medium">
+                      <td className="px-4 py-3 sm:px-6 sm:py-4 text-slate-500 font-medium">
                         {c.date ? new Date(c.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Unset'}
                       </td>
                       
                       {/* Amount */}
-                      <td className="px-6 py-4 font-extrabold text-slate-900">
+                      <td className="px-4 py-3 sm:px-6 sm:py-4 font-extrabold text-slate-900">
                         ₹{c.amount.toLocaleString()}
                       </td>
                       
                       {/* Method */}
-                      <td className="px-6 py-4 text-slate-500 font-medium">
+                      <td className="px-4 py-3 sm:px-6 sm:py-4 text-slate-500 font-medium">
                         <span className="inline-flex items-center gap-1.5">
                           {c.method === 'Cash' ? (
                             <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -365,7 +367,7 @@ export const ContributionsTab = ({
                       </td>
                       
                       {/* Status */}
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
                         {c.status === 'Pending' ? (
                           <span className="text-[10px] bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">
                             Pending
@@ -379,10 +381,13 @@ export const ContributionsTab = ({
                       
                       {/* Actions */}
                       {canManageData && (
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-4 py-3 sm:px-6 sm:py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => handleEdit(c)}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleEdit(c);
+                              }}
                               className="text-slate-400 hover:text-[#056449] p-1.5 hover:bg-slate-100 rounded-lg transition"
                             >
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -390,7 +395,10 @@ export const ContributionsTab = ({
                               </svg>
                             </button>
                             <button
-                              onClick={() => handleDelete(c.id)}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDelete(c.id);
+                              }}
                               className="text-slate-400 hover:text-rose-600 p-1.5 hover:bg-slate-100 rounded-lg transition"
                             >
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

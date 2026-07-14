@@ -142,8 +142,43 @@ public class TripController {
 
         tripService.recalculateAdjustedTarget(savedTrip.getId());
         
-        // Fetch it again to return the one with calculated adjusted target
-        return ResponseEntity.ok(tripRepository.findById(savedTrip.getId()).orElse(savedTrip));
+        Trip finalTrip = tripRepository.findById(savedTrip.getId()).orElse(savedTrip);
+        
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("id", finalTrip.getId());
+        map.put("name", finalTrip.getName());
+        map.put("destination", finalTrip.getDestination() != null ? finalTrip.getDestination() : "Goa, India");
+        map.put("startDate", finalTrip.getStartDate());
+        map.put("endDate", finalTrip.getEndDate());
+        map.put("targetBudget", finalTrip.getTargetBudget() != null ? finalTrip.getTargetBudget() : java.math.BigDecimal.ZERO);
+        map.put("targetPerPerson", finalTrip.getTargetPerPerson());
+        map.put("adjustForExtra", finalTrip.getAdjustForExtra());
+        map.put("adjustedTarget", finalTrip.getAdjustedTarget());
+        map.put("createdAt", finalTrip.getCreatedAt());
+        map.put("memberCount", 1);
+        
+        Optional<User> u = userRepository.findById(userId);
+        List<String> initials = new java.util.ArrayList<>();
+        if (u.isPresent()) {
+            String uName = u.get().getName();
+            if (uName != null && !uName.trim().isEmpty()) {
+                String[] parts = uName.trim().split("\\s+");
+                if (parts.length > 1) {
+                    initials.add((parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase());
+                } else {
+                    initials.add(parts[0].substring(0, Math.min(parts[0].length(), 1)).toUpperCase());
+                }
+            } else {
+                initials.add("??");
+            }
+        } else {
+            initials.add("??");
+        }
+        map.put("memberInitials", initials);
+        map.put("totalSpent", 0.0);
+        map.put("status", "Upcoming");
+        
+        return ResponseEntity.ok(map);
     }
 
     @PutMapping("/{tripId}")

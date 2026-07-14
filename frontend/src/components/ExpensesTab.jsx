@@ -10,7 +10,8 @@ export const ExpensesTab = ({
   setExpenseForm,
   setShowExpenseModal,
   handleExpenseDelete,
-  trip
+  trip,
+  onExpenseClick
 }) => {
   const targetBudget = trip?.targetBudget || (trip?.targetPerPerson * members.length) || 150000;
   const remainingBudget = (totalPooled || 0) - totalExpenses;
@@ -64,42 +65,42 @@ export const ExpensesTab = ({
   return (
     <div className="space-y-8">
       {/* Screen 2 Top Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         
         {/* TOTAL GROUP SPEND */}
-        <div className="md:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="md:col-span-2 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-slate-455 text-[10px] font-bold uppercase tracking-wider">Total Group Spend</span>
-              <span className="text-[10px] bg-emerald-50 border border-emerald-100 text-[#056449] px-2 py-0.5 rounded-full font-bold">✓ Active</span>
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <span className="text-slate-455 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Total Group Spend</span>
+              <span className="text-[9px] sm:text-[10px] bg-emerald-50 border border-emerald-100 text-[#056449] px-2 py-0.5 rounded-full font-bold">✓ Active</span>
             </div>
-            <h2 className="text-4xl font-black text-slate-900">₹{totalExpenses.toLocaleString()}</h2>
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900">₹{totalExpenses.toLocaleString()}</h2>
           </div>
-          <div className="mt-6">
-            <div className="flex justify-between text-xs text-slate-450 mb-2 font-semibold">
+          <div className="mt-4 sm:mt-6">
+            <div className="flex justify-between text-[11px] sm:text-xs text-slate-450 mb-1.5 sm:mb-2 font-semibold">
               <span>Budget Progress</span>
               <span>₹{targetBudget.toLocaleString()}</span>
             </div>
-            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/30">
+            <div className="w-full bg-slate-100 h-2 sm:h-2.5 rounded-full overflow-hidden border border-slate-200/30">
               <div className="bg-[#056449] h-full rounded-full" style={{ width: `${Math.min((totalExpenses / targetBudget) * 100, 100)}%` }} />
             </div>
           </div>
         </div>
 
         {/* RIGHT SUB CARDS */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
           {/* REMAINING BUDGET */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-            <h3 className="text-slate-450 text-[10px] font-bold uppercase tracking-wider mb-2">Remaining Balance</h3>
-            <p className={`text-2xl font-black ${remainingBudget >= 0 ? 'text-[#056449]' : 'text-rose-500'}`}>₹{remainingBudget.toLocaleString()}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">
+          <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+            <h3 className="text-slate-450 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Remaining Balance</h3>
+            <p className={`text-lg sm:text-2xl font-black ${remainingBudget >= 0 ? 'text-[#056449]' : 'text-rose-500'}`}>₹{remainingBudget.toLocaleString()}</p>
+            <span className="text-[11px] sm:text-xs text-slate-500 font-medium block mt-1">
               ₹{(totalPooled || 0).toLocaleString()} collected − ₹{totalExpenses.toLocaleString()} spent
             </span>
           </div>
           {/* YOUR BALANCE */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex justify-between items-center group hover:border-[#056449]/15 transition-all">
+          <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex justify-between items-center group hover:border-[#056449]/15 transition-all">
             <div>
-              <h3 className="text-slate-450 text-[10px] font-bold uppercase tracking-wider mb-1.5">Your Balance</h3>
+              <h3 className="text-slate-450 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1">Your Balance</h3>
               {(() => {
                 const myMember = members.find(m => 
                   (m.userId && user?.id && m.userId === user.id) || 
@@ -108,16 +109,16 @@ export const ExpensesTab = ({
                 const myOwes = myMember?.owes || 0;
                 const myOwed = myMember?.owed || 0;
                 if (myOwes > 0) {
-                  return <p className="text-xl font-black text-rose-500">Owe ₹{myOwes.toLocaleString()}</p>;
+                  return <p className="text-lg sm:text-xl font-black text-rose-500">Owe ₹{myOwes.toLocaleString()}</p>;
                 } else if (myOwed > 0) {
-                  return <p className="text-xl font-black text-[#056449]">Owed ₹{myOwed.toLocaleString()}</p>;
+                  return <p className="text-lg sm:text-xl font-black text-[#056449]">Owed ₹{myOwed.toLocaleString()}</p>;
                 } else {
-                  return <p className="text-xl font-black text-slate-700">Settled</p>;
+                  return <p className="text-lg sm:text-xl font-black text-slate-700">Settled</p>;
                 }
               })()}
             </div>
-            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </div>
@@ -127,13 +128,13 @@ export const ExpensesTab = ({
       </div>
 
       {/* Filter pills and Search */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white border border-slate-100 rounded-3xl p-4 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+        <div className="flex flex-wrap gap-1.5">
           {filterCategories.map(filter => (
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer select-none flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer select-none flex items-center gap-1 sm:gap-1.5 ${
                 activeFilter === filter.id
                   ? 'bg-[#056449] text-white'
                   : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40'
@@ -287,39 +288,58 @@ export const ExpensesTab = ({
               }
 
               return (
-                <div key={e.id} className="flex justify-between items-center border-b border-slate-100 pb-4 last:border-0 last:pb-0 hover:bg-slate-50/30 p-2 rounded-2xl transition duration-150">
-                  <div className="flex items-center gap-4">
-                    {categoryIcon}
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-800 text-sm">{e.title}</span>
-                        <span className="text-[9px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                <div
+                  key={e.id}
+                  onClick={() => onExpenseClick && onExpenseClick(e)}
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 last:border-0 last:pb-0 hover:bg-slate-50/50 p-3 sm:p-2 rounded-2xl transition duration-150 cursor-pointer gap-2.5 sm:gap-0"
+                >
+                  <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="flex-shrink-0">
+                      {categoryIcon}
+                    </div>
+                    <div className="min-w-0 flex-1 sm:flex-initial">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="font-bold text-slate-800 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-none">{e.title}</span>
+                        <span className="text-[8px] sm:text-[9px] bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
                           {e.category}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 mt-1">
-                        Paid by <span className="font-semibold text-slate-700">{payer?.userName || 'Member'}</span> • {new Date(e.date).toLocaleString()}
+                      <div className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 sm:mt-1">
+                        Paid by <span className="font-semibold text-slate-700">{payer?.userName || 'Member'}</span> • {new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right flex items-center gap-4">
-                    <div>
-                      <div className="font-black text-rose-500 text-sm">-₹{e.amount.toLocaleString()}</div>
-                      <div className="text-[9px] text-slate-400 font-semibold uppercase mt-0.5">Split Equally</div>
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto border-t border-slate-100/50 sm:border-0 pt-2 sm:pt-0">
+                    <div className="text-left sm:text-right">
+                      <div className="font-black text-rose-500 text-xs sm:text-sm">-₹{e.amount.toLocaleString()}</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 font-semibold uppercase mt-0.5">Split Equally</div>
                     </div>
                     {canManageData && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5 sm:gap-2 mt-0 sm:mt-1.5">
                         <button
-                          onClick={() => { setExpenseForm({ id: e.id, title: e.title, amount: e.amount, note: e.note || '', date: e.date ? e.date.substring(0, 16) : '', place: e.place || '', category: e.category || 'OTHERS', foodType: e.foodType || 'OTHERS', travelFrom: e.travelFrom || '', travelTo: e.travelTo || '', travelStartDate: e.travelStartDate ? e.travelStartDate.substring(0, 16) : '', travelEndDate: e.travelEndDate ? e.travelEndDate.substring(0, 16) : '', roomsCount: e.roomsCount || '', peopleCount: e.peopleCount || '', checkInDate: e.checkInDate ? e.checkInDate.substring(0, 16) : '', checkOutDate: e.checkOutDate ? e.checkOutDate.substring(0, 16) : '' }); setShowExpenseModal(true); }}
-                          className="text-indigo-600 hover:text-indigo-855 text-xs font-semibold cursor-pointer"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setExpenseForm({ id: e.id, title: e.title, amount: e.amount, note: e.note || '', date: e.date ? e.date.substring(0, 16) : '', place: e.place || '', category: e.category || 'OTHERS', foodType: e.foodType || 'OTHERS', travelFrom: e.travelFrom || '', travelTo: e.travelTo || '', travelStartDate: e.travelStartDate ? e.travelStartDate.substring(0, 16) : '', travelEndDate: e.travelEndDate ? e.travelEndDate.substring(0, 16) : '', roomsCount: e.roomsCount || '', peopleCount: e.peopleCount || '', checkInDate: e.checkInDate ? e.checkInDate.substring(0, 16) : '', checkOutDate: e.checkOutDate ? e.checkOutDate.substring(0, 16) : '' });
+                            setShowExpenseModal(true);
+                          }}
+                          className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-[#056449] hover:bg-emerald-50 transition cursor-pointer"
+                          title="Edit Expense"
                         >
-                          Edit
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
                         </button>
                         <button
-                          onClick={() => handleExpenseDelete(e.id)}
-                          className="text-rose-600 hover:text-rose-855 text-xs font-semibold cursor-pointer"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleExpenseDelete(e.id);
+                          }}
+                          className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                          title="Delete Expense"
                         >
-                          Delete
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </div>
                     )}
