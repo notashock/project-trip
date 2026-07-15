@@ -14,8 +14,22 @@ export const ContributionModal = ({
   const [quickName, setQuickName] = useState('');
   const [quickEmail, setQuickEmail] = useState('');
   const [quickAdding, setQuickAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      await onSubmit(e);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleQuickAddSubmit = async () => {
     if (!quickEmail) {
@@ -44,7 +58,7 @@ export const ContributionModal = ({
         </h3>
         <p className="text-slate-400 text-xs mb-6">Select member and enter details to record deposit</p>
 
-        <form onSubmit={onSubmit} className="flex-1 flex flex-col min-h-0">
+        <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto space-y-4 pr-1 py-1">
             <div>
               <div className="flex justify-between items-center mb-2">
@@ -162,9 +176,10 @@ export const ContributionModal = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm"
+              disabled={isSaving}
+              className={`px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Save
+              {isSaving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>

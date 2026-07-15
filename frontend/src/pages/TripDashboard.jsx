@@ -25,6 +25,7 @@ const TripDashboard = () => {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('overview');
@@ -224,6 +225,8 @@ const TripDashboard = () => {
 
   const handleMemberSubmit = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       const res = await tripService.inviteMember(tripId, memberForm);
       setShowMemberModal(false);
@@ -238,6 +241,8 @@ const TripDashboard = () => {
       }
     } catch (err) {
       alert(err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -265,12 +270,15 @@ const TripDashboard = () => {
 
   const handleEditMemberSubmit = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       const currentMember = members.find(m => m.id === editMemberForm.id);
       if (currentMember && currentMember.role === 'ADMIN' && editMemberForm.role !== 'ADMIN') {
         const adminCount = members.filter(m => m.role === 'ADMIN').length;
         if (adminCount <= 1) {
           alert('Cannot change role: A trip must have at least one Admin.');
+          setIsSaving(false);
           return;
         }
       }
@@ -282,6 +290,8 @@ const TripDashboard = () => {
       fetchData();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -667,7 +677,13 @@ const TripDashboard = () => {
 
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 flex-shrink-0">
                 <button type="button" onClick={() => setShowMemberModal(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-250 text-slate-600 rounded-xl transition text-sm font-semibold cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm">Invite</button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isSaving ? 'Saving...' : 'Invite'}
+                </button>
               </div>
             </form>
           </div>
@@ -710,7 +726,13 @@ const TripDashboard = () => {
 
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 flex-shrink-0">
                 <button type="button" onClick={() => setShowEditMemberModal(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-255 text-slate-600 rounded-xl transition text-sm font-semibold cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm">Save</button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-semibold rounded-xl transition text-sm cursor-pointer shadow-sm ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isSaving ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </form>
           </div>

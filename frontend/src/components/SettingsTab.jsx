@@ -4,6 +4,7 @@ import { tripService } from '../services/tripService';
 
 export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActiveTab, role }) => {
   const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState(false);
   const [settingsForm, setSettingsForm] = useState({
     name: trip?.name || '',
     destination: trip?.destination || 'Goa, India',
@@ -18,6 +19,8 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
   });
 
   const handleSaveSettings = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       const payload = {
         name: settingsForm.name,
@@ -40,6 +43,8 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
       setActiveTab('overview');
     } catch (err) {
       alert('Failed to save settings: ' + err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -283,8 +288,12 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
         <button onClick={() => setActiveTab('overview')} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-600 rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer">
           Cancel
         </button>
-        <button onClick={handleSaveSettings} className="px-4 py-2 sm:px-6 sm:py-2.5 bg-[#056449] hover:bg-[#04523b] text-white rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer shadow-sm">
-          Save Changes
+        <button
+          onClick={handleSaveSettings}
+          disabled={isSaving}
+          className={`px-4 py-2 sm:px-6 sm:py-2.5 bg-[#056449] hover:bg-[#04523b] text-white rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer shadow-sm ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </div>

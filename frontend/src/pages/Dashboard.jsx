@@ -44,6 +44,7 @@ const Dashboard = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [targetPerPerson, setTargetPerPerson] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const navigate = useNavigate();
 
@@ -65,6 +66,8 @@ const Dashboard = () => {
 
   const handleCreateTrip = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       const payload = {
         name,
@@ -88,6 +91,8 @@ const Dashboard = () => {
       fetchTrips();
     } catch (err) {
       alert('Error creating trip: ' + err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -403,9 +408,10 @@ const Dashboard = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-extrabold rounded-xl transition text-xs cursor-pointer"
+                  disabled={isSaving}
+                  className={`px-5 py-2.5 bg-[#056449] hover:bg-[#04523b] text-white font-extrabold rounded-xl transition text-xs cursor-pointer ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Create Trip
+                  {isSaving ? 'Saving...' : 'Create Trip'}
                 </button>
               </div>
             </form>
