@@ -443,7 +443,7 @@ const TripDashboard = () => {
       </Navbar>
 
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-6 mt-6 sm:mt-12 pb-24 md:pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-6 sm:mt-12 pb-24 md:pb-12">
 
         {/* Mobile Search Bar */}
         {activeTab !== 'settings' && (

@@ -31,18 +31,23 @@ export const MembersTab = ({
   return (
     <div className="space-y-8">
       {/* Metrics cards */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-          <h3 className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider mb-1 sm:mb-2">Members</h3>
-          <p className="text-sm sm:text-3xl font-black text-slate-900">{members.length}</p>
+      <div className="space-y-4 sm:space-y-6">
+        {/* Top Card: Collected */}
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+          <h3 className="text-slate-455 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1 sm:mb-2">Collected</h3>
+          <p className="text-[#056449] text-2xl sm:text-4xl font-black">₹{totalPooled.toLocaleString()}</p>
         </div>
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-          <h3 className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider mb-1 sm:mb-2">Collected</h3>
-          <p className="text-[#056449] text-sm sm:text-3xl font-black">₹{totalPooled.toLocaleString()}</p>
-        </div>
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-          <h3 className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider mb-1 sm:mb-2">Pending</h3>
-          <p className="text-amber-600 text-sm sm:text-3xl font-black">₹{totalPending.toLocaleString()}</p>
+
+        {/* Side-by-side cards below */}
+        <div className="grid grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+            <h3 className="text-slate-455 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1 sm:mb-2">Members</h3>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900">{members.length}</p>
+          </div>
+          <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+            <h3 className="text-slate-455 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1 sm:mb-2">Pending</h3>
+            <p className="text-amber-600 text-2xl sm:text-3xl font-black">₹{totalPending.toLocaleString()}</p>
+          </div>
         </div>
       </div>
 

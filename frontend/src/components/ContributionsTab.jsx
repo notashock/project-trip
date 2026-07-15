@@ -81,48 +81,6 @@ export const ContributionsTab = ({
   return (
     <div className="space-y-8">
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6">
-        
-        {/* TOTAL COLLECTED */}
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div>
-            <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Collected</span>
-            <h2 className="text-sm sm:text-4xl font-black text-[#056449]">₹{totalPooled.toLocaleString()}</h2>
-          </div>
-          <div className="mt-4 sm:mt-6">
-            <div className="w-full bg-slate-100 h-1.5 sm:h-2.5 rounded-full overflow-hidden border border-slate-200/30">
-              <div className="bg-[#056449] h-full rounded-full" style={{ width: `${Math.min((totalPooled / (totalTripTarget || 1)) * 100, 100)}%` }} />
-            </div>
-          </div>
-        </div>
-
-        {/* REMAINING TARGET */}
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div>
-            <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Pending</span>
-            <h2 className="text-sm sm:text-4xl font-black text-amber-600">₹{totalPending.toLocaleString()}</h2>
-          </div>
-          <div className="mt-4 sm:mt-6">
-            <span className="text-[9px] sm:text-xs text-slate-455 font-semibold truncate block">
-              Budget: ₹{totalTripTarget.toLocaleString()}
-            </span>
-          </div>
-        </div>
-
-        {/* NEXT MILESTONE */}
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div>
-            <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Milestone</span>
-            <h2 className="text-sm sm:text-4xl font-black text-slate-900">₹{nextMilestone.toLocaleString()}</h2>
-          </div>
-          <div className="mt-4 sm:mt-6 flex">
-            <span className="text-[8px] sm:text-[10px] bg-slate-50 border border-slate-200/60 text-slate-600 font-extrabold px-1.5 py-0.5 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 shadow-sm truncate">
-              Due {formattedMilestoneDate}
-            </span>
-          </div>
-        </div>
-      </div>
 
       {/* Contribution Table Block */}
       <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">

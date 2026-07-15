@@ -69,10 +69,10 @@ export const ExpensesTab = ({
   return (
     <div className="space-y-8">
       {/* Screen 2 Top Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      <div className="space-y-4 sm:space-y-6">
         
         {/* TOTAL GROUP SPEND */}
-        <div className="md:col-span-2 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-3 sm:mb-4">
               <span className="text-slate-455 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Total Group Spend</span>
@@ -112,8 +112,8 @@ export const ExpensesTab = ({
           </div>
         </div>
 
-        {/* RIGHT SUB CARDS */}
-        <div className="flex flex-col gap-4 sm:gap-6">
+        {/* SIDE-BY-SIDE SUB CARDS */}
+        <div className="grid grid-cols-2 gap-4 sm:gap-6">
           {/* REMAINING BUDGET */}
           <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
             <h3 className="text-slate-450 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Remaining Balance</h3>
@@ -152,87 +152,90 @@ export const ExpensesTab = ({
 
       </div>
 
-      {/* Filter pills and Search */}
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-        <div className="flex flex-wrap gap-1.5">
-          {filterCategories.map(filter => (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer select-none flex items-center gap-1 sm:gap-1.5 ${
-                activeFilter === filter.id
-                  ? 'bg-[#056449] text-white'
-                  : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40'
-              }`}
-            >
-              {filter.label}
-              {(categoryCounts[filter.id] || 0) > 0 && (
-                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                  activeFilter === filter.id
-                    ? 'bg-white/20 text-white'
-                    : 'bg-slate-200/60 text-slate-500'
-                }`}>
-                  {categoryCounts[filter.id] || 0}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Combined Expenses Log & Filters Container */}
+      <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-100/60">
+          <div>
+            <h3 className="font-extrabold text-slate-900 text-lg">Expenses Log</h3>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase mt-0.5 tracking-wider">Group Transactions</p>
+          </div>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+            {/* Filter pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {filterCategories.map(filter => (
+                <button
+                  key={filter.id}
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition cursor-pointer select-none flex items-center gap-1 ${
+                    activeFilter === filter.id
+                      ? 'bg-[#056449] text-white shadow-sm'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40'
+                  }`}
+                >
+                  {filter.label}
+                  {(categoryCounts[filter.id] || 0) > 0 && (
+                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                      activeFilter === filter.id
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-200/60 text-slate-500'
+                    }`}>
+                      {categoryCounts[filter.id] || 0}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-      {/* Filtered results indicator */}
-      {(activeFilter !== 'all' || searchQuery) && (
-        <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">
-          <span>
-            Showing <span className="text-slate-900 font-bold">{filteredExpenses.length}</span> of {expenses.length} expenses
-            {activeFilter !== 'all' && <span> in <span className="text-[#056449] font-bold">{filterCategories.find(f => f.id === activeFilter)?.label}</span></span>}
-            {searchQuery && <span> matching "<span className="text-slate-900 font-bold">{searchQuery}</span>"</span>}
-            {' '}— ₹{filteredTotal.toLocaleString()}
-          </span>
-          <button
-            onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-            className="text-[#056449] hover:text-[#04523b] font-bold cursor-pointer transition"
-          >
-            Clear filters
-          </button>
+            {canManageData && (
+              <button
+                onClick={() => {
+                  setExpenseForm({
+                    id: null,
+                    title: '',
+                    amount: '',
+                    note: '',
+                    date: new Date().toISOString().substring(0, 16),
+                    place: '',
+                    category: 'OTHERS',
+                    foodType: 'OTHERS',
+                    travelFrom: '',
+                    travelTo: '',
+                    travelStartDate: '',
+                    travelEndDate: '',
+                    roomsCount: '',
+                    peopleCount: '',
+                    checkInDate: '',
+                    checkOutDate: '',
+                    memberId: user?.id || '',
+                    addAsContribution: false
+                  });
+                  setShowExpenseModal(true);
+                }}
+                className="bg-[#056449] hover:bg-[#04523b] text-white px-4 py-2 rounded-full text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shadow-sm"
+              >
+                + Add Expense
+              </button>
+            )}
+          </div>
         </div>
-      )}
 
-      {/* List of Expenses */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-extrabold text-slate-900">Expenses Log</h3>
-          {canManageData && (
+        {/* Filtered results indicator */}
+        {(activeFilter !== 'all' || searchQuery) && (
+          <div className="flex items-center justify-between text-xs text-slate-500 font-semibold bg-slate-50 p-3 rounded-2xl border border-slate-200/30">
+            <span>
+              Showing <span className="text-slate-900 font-bold">{filteredExpenses.length}</span> of {expenses.length} expenses
+              {activeFilter !== 'all' && <span> in <span className="text-[#056449] font-bold">{filterCategories.find(f => f.id === activeFilter)?.label}</span></span>}
+              {searchQuery && <span> matching "<span className="text-slate-900 font-bold">{searchQuery}</span>"</span>}
+              {' '}— ₹{filteredTotal.toLocaleString()}
+            </span>
             <button
-              onClick={() => {
-                setExpenseForm({
-                  id: null,
-                  title: '',
-                  amount: '',
-                  note: '',
-                  date: new Date().toISOString().substring(0, 16),
-                  place: '',
-                  category: 'OTHERS',
-                  foodType: 'OTHERS',
-                  travelFrom: '',
-                  travelTo: '',
-                  travelStartDate: '',
-                  travelEndDate: '',
-                  roomsCount: '',
-                  peopleCount: '',
-                  checkInDate: '',
-                  checkOutDate: '',
-                  memberId: user?.id || '',
-                  addAsContribution: false
-                });
-                setShowExpenseModal(true);
-              }}
-              className="bg-[#056449] hover:bg-[#04523b] text-white px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
+              className="text-[#056449] hover:text-[#04523b] font-bold cursor-pointer transition"
             >
-              + Add Expense
+              Clear filters
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {filteredExpenses.length === 0 ? (
           <div className="text-center py-12">
