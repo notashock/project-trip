@@ -151,11 +151,14 @@ const AuthPage = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
                 <span>Server Offline</span>
               </div>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold italic text-center max-w-[280px]">
+                It takes 40s sometimes, enjoy the trip meanwhile...
+              </p>
               <button
                 type="button"
                 disabled={isPinging}
                 onClick={checkServerHealth}
-                className="text-[9px] text-[#056449] hover:underline font-extrabold uppercase tracking-wider flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                className="text-[9px] text-[#056449] hover:underline font-extrabold uppercase tracking-wider flex items-center gap-1 cursor-pointer disabled:opacity-50 mt-0.5"
               >
                 {isPinging ? (
                   <>
