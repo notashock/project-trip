@@ -113,11 +113,11 @@ export const ExpensesTab = ({
         </div>
 
         {/* RIGHT SUB CARDS */}
-        <div className="flex flex-col gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 md:flex md:flex-col gap-4 sm:gap-6">
           {/* REMAINING BUDGET */}
           <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
             <h3 className="text-slate-450 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">Remaining Balance</h3>
-            <p className={`text-lg sm:text-2xl font-black ${remainingBudget >= 0 ? 'text-[#056449]' : 'text-rose-500'}`}>₹{remainingBudget.toLocaleString()}</p>
+            <p className={`text-xl sm:text-3xl font-black ${remainingBudget >= 0 ? 'text-[#056449]' : 'text-rose-500'}`}>₹{remainingBudget.toLocaleString()}</p>
             <span className="text-[11px] sm:text-xs text-slate-500 font-medium block mt-1">
               ₹{(totalPooled || 0).toLocaleString()} collected − ₹{totalExpenses.toLocaleString()} spent
             </span>
@@ -134,11 +134,11 @@ export const ExpensesTab = ({
                 const myOwes = myMember?.owes || 0;
                 const myOwed = myMember?.owed || 0;
                 if (myOwes > 0) {
-                  return <p className="text-lg sm:text-xl font-black text-rose-500">Owe ₹{myOwes.toLocaleString()}</p>;
+                  return <p className="text-xl sm:text-3xl font-black text-rose-500">Owe ₹{myOwes.toLocaleString()}</p>;
                 } else if (myOwed > 0) {
-                  return <p className="text-lg sm:text-xl font-black text-[#056449]">Owed ₹{myOwed.toLocaleString()}</p>;
+                  return <p className="text-xl sm:text-3xl font-black text-[#056449]">Owed ₹{myOwed.toLocaleString()}</p>;
                 } else {
-                  return <p className="text-lg sm:text-xl font-black text-slate-700">Settled</p>;
+                  return <p className="text-xl sm:text-3xl font-black text-slate-700">Settled</p>;
                 }
               })()}
             </div>
@@ -152,55 +152,9 @@ export const ExpensesTab = ({
 
       </div>
 
-      {/* Filter pills and Search */}
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-        <div className="flex flex-wrap gap-1.5">
-          {filterCategories.map(filter => (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer select-none flex items-center gap-1 sm:gap-1.5 ${
-                activeFilter === filter.id
-                  ? 'bg-[#056449] text-white'
-                  : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40'
-              }`}
-            >
-              {filter.label}
-              {(categoryCounts[filter.id] || 0) > 0 && (
-                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                  activeFilter === filter.id
-                    ? 'bg-white/20 text-white'
-                    : 'bg-slate-200/60 text-slate-500'
-                }`}>
-                  {categoryCounts[filter.id] || 0}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Filtered results indicator */}
-      {(activeFilter !== 'all' || searchQuery) && (
-        <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-1">
-          <span>
-            Showing <span className="text-slate-900 font-bold">{filteredExpenses.length}</span> of {expenses.length} expenses
-            {activeFilter !== 'all' && <span> in <span className="text-[#056449] font-bold">{filterCategories.find(f => f.id === activeFilter)?.label}</span></span>}
-            {searchQuery && <span> matching "<span className="text-slate-900 font-bold">{searchQuery}</span>"</span>}
-            {' '}— ₹{filteredTotal.toLocaleString()}
-          </span>
-          <button
-            onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-            className="text-[#056449] hover:text-[#04523b] font-bold cursor-pointer transition"
-          >
-            Clear filters
-          </button>
-        </div>
-      )}
-
       {/* List of Expenses */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-        <div className="flex justify-between items-center mb-6">
+      <div className="bg-white border border-slate-100 rounded-3xl shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+        <div className="flex justify-between items-center mb-4 px-6 pt-6">
           <h3 className="font-extrabold text-slate-900">Expenses Log</h3>
           {canManageData && (
             <button
@@ -234,8 +188,52 @@ export const ExpensesTab = ({
           )}
         </div>
 
+        {/* Filter pills combined inside the log container */}
+        <div className="flex flex-wrap gap-1.5 px-6 pb-4 border-b border-slate-100/50 mb-4">
+          {filterCategories.map(filter => (
+            <button
+              key={filter.id}
+              onClick={() => setActiveFilter(filter.id)}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition cursor-pointer select-none flex items-center gap-1 sm:gap-1.5 ${
+                activeFilter === filter.id
+                  ? 'bg-[#056449] text-white'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40'
+              }`}
+            >
+              {filter.label}
+              {(categoryCounts[filter.id] || 0) > 0 && (
+                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                  activeFilter === filter.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-200/60 text-slate-500'
+                }`}>
+                  {categoryCounts[filter.id] || 0}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Filtered results indicator inside container */}
+        {(activeFilter !== 'all' || searchQuery) && (
+          <div className="flex items-center justify-between text-xs text-slate-500 font-semibold px-6 mb-4">
+            <span>
+              Showing <span className="text-slate-900 font-bold">{filteredExpenses.length}</span> of {expenses.length} expenses
+              {activeFilter !== 'all' && <span> in <span className="text-[#056449] font-bold">{filterCategories.find(f => f.id === activeFilter)?.label}</span></span>}
+              {searchQuery && <span> matching "<span className="text-slate-900 font-bold">{searchQuery}</span>"</span>}
+              {' '}— ₹{filteredTotal.toLocaleString()}
+            </span>
+            <button
+              onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
+              className="text-[#056449] hover:text-[#04523b] font-bold cursor-pointer transition"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+
         {filteredExpenses.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 px-6 pb-6">
             {expenses.length === 0 ? (
               <p className="text-slate-400 text-xs">No expenses logged yet.</p>
             ) : (
@@ -254,7 +252,7 @@ export const ExpensesTab = ({
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[380px] overflow-y-auto px-6 pb-6 pt-2">
             {filteredExpenses.map(e => {
               const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
               let categoryIcon = (
@@ -294,7 +292,7 @@ export const ExpensesTab = ({
                 <div
                   key={e.id}
                   onClick={() => onExpenseClick && onExpenseClick(e)}
-                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 last:border-0 last:pb-0 hover:bg-slate-50/50 p-3 sm:p-2 rounded-2xl transition duration-150 cursor-pointer gap-2.5 sm:gap-0"
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center border border-slate-100/80 bg-white hover:border-[#056449]/20 hover:shadow-[0_4px_15px_-3px_rgba(0,0,0,0.05)] p-4 rounded-2xl transition-all duration-200 cursor-pointer gap-2.5 sm:gap-0 shadow-sm"
                 >
                   <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
                     <div className="flex-shrink-0">

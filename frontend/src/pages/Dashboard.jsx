@@ -107,7 +107,7 @@ const Dashboard = () => {
     } else {
       return isCompleted;
     }
-  });
+  }).sort((a, b) => b.id - a.id);
 
   return (
     <div className="min-h-screen bg-[#f8faf9] text-slate-800 font-sans pb-16">

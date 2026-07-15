@@ -21,7 +21,8 @@ export const SummaryTab = ({
   availableBalance,
   totalExpenses,
   user,
-  searchQuery
+  searchQuery,
+  onExpenseClick
 }) => {
   const filteredMembers = React.useMemo(() => {
     if (!searchQuery) return members;
@@ -129,86 +130,7 @@ export const SummaryTab = ({
 
       {/* Main Grid split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        
-        {/* Left Column: Member Progress */}
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-          <div className="flex justify-between items-center border-b border-slate-100 pb-4 sm:pb-5 mb-4 sm:mb-6">
-            <div className="flex items-center gap-2">
-              <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#056449]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <h2 className="text-sm sm:text-lg font-extrabold text-slate-900">Member Progress</h2>
-            </div>
-            {canManageData && (
-              <button
-                onClick={() => { setContributionForm({ id: null, userId: '', amount: '', note: '' }); setShowContributionModal(true); }}
-                className="bg-[#056449] hover:bg-[#04523b] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-              >
-                + Add Contribution
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-4 sm:space-y-6">
-            {filteredMembers.map(m => {
-              const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
-              const owes = m.owes !== undefined ? m.owes : 0;
-              const owed = m.owed !== undefined ? m.owed : 0;
-              
-              const isPaid = owes <= 0;
-              const isUnpaid = userPooled === 0;
-              const percent = Math.min((userPooled / adjustedTarget) * 100, 100);
-              const clampedHue = Math.max(10, Math.min(90, percent));
-              const hue = ((clampedHue - 10) / 80) * 120;
-              const barColor = `hsl(${hue}, 85%, 42%)`;
-
-              return (
-                <div key={m.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/50 flex items-center justify-center text-slate-700 font-bold text-xs uppercase shadow-sm">
-                        {m.userName ? m.userName.substring(0, 2) : 'M'}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-sm text-slate-800">{m.userName}</span>
-                          {isPaid ? (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] bg-emerald-50 border border-emerald-100 text-[#056449] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                              ✓ Paid
-                            </span>
-                          ) : isUnpaid ? (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] bg-slate-50 border border-slate-200 text-slate-400 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                              Unpaid
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] bg-amber-50 border border-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                              Pending
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right text-xs">
-                      <span className="font-extrabold text-slate-800">₹{userPooled.toLocaleString()}</span>
-                      <span className="text-slate-400"> / ₹{Math.round(adjustedTarget).toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/30">
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${percent}%`,
-                        backgroundColor: barColor
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Column: Recent Expenses */}
+        {/* Left Column: Recent Expenses */}
         <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center border-b border-slate-100 pb-4 sm:pb-5 mb-4 sm:mb-6">
@@ -228,7 +150,7 @@ export const SummaryTab = ({
               ) : (
                 [...filteredExpensesForSummary]
                   .sort((a, b) => new Date(b.date) - new Date(a.date))
-                  .slice(0, 3)
+                  .slice(0, 6)
                   .map(e => {
                     const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
                   let categoryIcon = (
@@ -248,7 +170,7 @@ export const SummaryTab = ({
                     );
                   } else if (e.category === 'FOOD_AND_BEVERAGES') {
                     categoryIcon = (
-                      <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-550 border border-amber-100/50">
+                      <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-555 border border-amber-100/50">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l-.707-.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -265,7 +187,11 @@ export const SummaryTab = ({
                   }
 
                   return (
-                    <div key={e.id} className="flex justify-between items-center border-b border-slate-50 pb-3 last:border-0 last:pb-0">
+                    <div
+                      key={e.id}
+                      onClick={() => onExpenseClick && onExpenseClick(e)}
+                      className="flex justify-between items-center cursor-pointer hover:bg-slate-50/50 p-1.5 rounded-xl transition duration-150"
+                    >
                       <div className="flex items-center gap-3">
                         {categoryIcon}
                         <div>
@@ -313,6 +239,84 @@ export const SummaryTab = ({
               + Add New Expense
             </button>
           )}
+        </div>
+
+        {/* Right Column: Member Progress */}
+        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-4 sm:pb-5 mb-4 sm:mb-6">
+            <div className="flex items-center gap-2">
+              <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#056449]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <h2 className="text-sm sm:text-lg font-extrabold text-slate-900">Member Progress</h2>
+            </div>
+            {canManageData && (
+              <button
+                onClick={() => { setContributionForm({ id: null, userId: '', amount: '', note: '' }); setShowContributionModal(true); }}
+                className="bg-[#056449] hover:bg-[#04523b] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+              >
+                + Add Contribution
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-4 sm:space-y-6">
+            {filteredMembers.map(m => {
+              const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
+              const owes = m.owes !== undefined ? m.owes : 0;
+              const owed = m.owed !== undefined ? m.owed : 0;
+              
+              const isPaid = owes <= 0;
+              const isUnpaid = userPooled === 0;
+              const percent = Math.min((userPooled / adjustedTarget) * 100, 100);
+              const clampedHue = Math.max(10, Math.min(90, percent));
+              const hue = ((clampedHue - 10) / 80) * 120;
+              const barColor = `hsl(${hue}, 85%, 42%)`;
+
+              return (
+                <div key={m.id} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/50 flex items-center justify-center text-slate-700 font-bold text-xs uppercase shadow-sm">
+                        {m.userName ? m.userName.substring(0, 2) : 'M'}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-800">{m.userName}</span>
+                          {isPaid ? (
+                            <span className="inline-flex items-center gap-0.5 text-[8px] bg-emerald-50 border border-emerald-100 text-[#056449] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                              ✓ Paid
+                            </span>
+                          ) : isUnpaid ? (
+                            <span className="inline-flex items-center gap-0.5 text-[8px] bg-slate-50 border border-slate-200 text-slate-400 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                              Unpaid
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5 text-[8px] bg-amber-50 border border-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right text-xs">
+                      <span className="font-extrabold text-slate-800">₹{userPooled.toLocaleString()}</span>
+                      <span className="text-slate-400"> / ₹{Math.round(adjustedTarget).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="w-2/3 ml-auto bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/30">
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${percent}%`,
+                        backgroundColor: barColor
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </div>
