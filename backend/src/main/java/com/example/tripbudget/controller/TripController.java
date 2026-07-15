@@ -45,6 +45,9 @@ public class TripController {
     private ExpenseRepository expenseRepository;
 
     @Autowired
+    private com.example.tripbudget.repository.ContributionRepository contributionRepository;
+
+    @Autowired
     private com.example.tripbudget.service.TripService tripService;
 
 
@@ -224,6 +227,7 @@ public class TripController {
         return ResponseEntity.ok(tripRepository.findById(tripId).orElse(trip));
     }
 
+    @org.springframework.transaction.annotation.Transactional
     @DeleteMapping("/{tripId}")
     public ResponseEntity<?> deleteTrip(@PathVariable Long tripId, @RequestAttribute("userId") Long userId) {
         Optional<TripMember> memberOpt = tripMemberRepository.findByTripIdAndUserId(tripId, userId);
@@ -231,8 +235,11 @@ public class TripController {
             return ResponseEntity.status(403).body(Map.of("message", "Only ADMIN can delete a trip"));
         }
 
+        contributionRepository.deleteByTripId(tripId);
+        expenseRepository.deleteByTripId(tripId);
+        tripMemberRepository.deleteByTripId(tripId);
         tripRepository.deleteById(tripId);
-        // Optionally clean up contributions/expenses/members in a real scenario
+        
         return ResponseEntity.ok(Map.of("message", "Trip deleted successfully"));
     }
 }

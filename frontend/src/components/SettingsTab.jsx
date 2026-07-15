@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { tripService } from '../services/tripService';
 
 export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActiveTab, role }) => {
+  const navigate = useNavigate();
   const [settingsForm, setSettingsForm] = useState({
     name: trip?.name || '',
     destination: trip?.destination || 'Goa, India',
@@ -246,11 +248,30 @@ export const SettingsTab = ({ tripId, trip, setTrip, members, fetchData, setActi
               <div className="flex justify-between items-center border-t border-slate-100 pt-4 mt-4">
                 <div>
                   <div className="text-xs font-bold text-slate-800">Danger Zone</div>
-                  <p className="text-[9px] text-slate-450 mt-0.5">Archive or delete this trip.</p>
+                  <p className="text-[9px] text-slate-450 mt-0.5">Permanently delete this trip.</p>
                 </div>
-                <button className="px-3.5 py-1.5 border border-rose-200 text-rose-500 rounded-lg text-xs font-extrabold hover:bg-rose-50 transition cursor-pointer">
-                  Manage
-                </button>
+                {role === 'ADMIN' ? (
+                  <button
+                    onClick={async () => {
+                      if (window.confirm("Are you sure you want to delete this trip? This action is permanent and will delete all expenses, contributions, and members.")) {
+                        try {
+                          await tripService.deleteTrip(tripId);
+                          alert('Trip deleted successfully!');
+                          navigate('/');
+                        } catch (err) {
+                          alert('Failed to delete trip: ' + err.message);
+                        }
+                      }
+                    }}
+                    className="px-3.5 py-1.5 border border-rose-200 text-rose-500 rounded-lg text-xs font-extrabold hover:bg-rose-50 transition cursor-pointer"
+                  >
+                    Delete Trip
+                  </button>
+                ) : (
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    Admins Only
+                  </span>
+                )}
               </div>
             </div>
           </div>

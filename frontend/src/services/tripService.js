@@ -26,6 +26,10 @@ export const tripService = {
     return api.put(`/trips/${tripId}`, payload);
   },
 
+  deleteTrip: async (tripId) => {
+    return api.delete(`/trips/${tripId}`);
+  },
+
   addExpense: async (tripId, payload) => {
     return api.post(`/trips/${tripId}/expenses`, payload);
   },

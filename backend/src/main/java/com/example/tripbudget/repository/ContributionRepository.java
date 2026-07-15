@@ -10,4 +10,5 @@ public interface ContributionRepository extends JpaRepository<Contribution, Long
     List<Contribution> findByTripId(Long tripId);
     List<Contribution> findByTripIdAndUserId(Long tripId, Long userId);
     List<Contribution> findByExpenseId(Long expenseId);
+    void deleteByTripId(Long tripId);
 }

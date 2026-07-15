@@ -11,4 +11,5 @@ import com.example.tripbudget.model.TripMember;
 public interface TripMemberRepository extends JpaRepository<TripMember, Long> {
     Optional<TripMember> findByTripIdAndUserId(Long tripId, Long userId);
     java.util.List<TripMember> findByTripId(Long tripId);
+    void deleteByTripId(Long tripId);
 }

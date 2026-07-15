@@ -32,9 +32,29 @@ export const setOnline = async () => {
   // Drain/process queue
   const currentQueue = [...queue];
   queue = [];
+  
+  const activeRequests = new Map();
+
   for (const item of currentQueue) {
+    const isGet = !item.options.method || item.options.method.toUpperCase() === 'GET';
+    const requestKey = `${item.options.method || 'GET'}:${item.endpoint}:${JSON.stringify(item.options.body || '')}`;
+
+    if (isGet && activeRequests.has(requestKey)) {
+      // Chain to the existing promise
+      activeRequests.get(requestKey).then(
+        res => item.resolve(res),
+        err => item.reject(err)
+      );
+      continue;
+    }
+
+    const promise = request(item.endpoint, item.options);
+    if (isGet) {
+      activeRequests.set(requestKey, promise);
+    }
+
     try {
-      const res = await request(item.endpoint, item.options);
+      const res = await promise;
       item.resolve(res);
     } catch (err) {
       item.reject(err);

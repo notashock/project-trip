@@ -8,4 +8,5 @@ import com.example.tripbudget.model.Expense;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByTripId(Long tripId);
+    void deleteByTripId(Long tripId);
 }
