@@ -1,27 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --spacing-0_5: 0.1rem;
-  --spacing-1: 0.175rem;
-  --spacing-1_5: 0.275rem;
-  --spacing-2: 0.35rem;
-  --spacing-2_5: 0.45rem;
-  --spacing-3: 0.525rem;
-  --spacing-3_5: 0.625rem;
-  --spacing-4: 0.7rem;
-  --spacing-5: 0.875rem;
-  --spacing-6: 1.05rem;
-  --spacing-8: 1.4rem;
-  --spacing-10: 1.75rem;
-  --spacing-12: 2.1rem;
-  --spacing-14: 2.45rem;
-  --spacing-16: 2.8rem;
-  --spacing-20: 3.5rem;
-  --spacing-24: 4.2rem;
-  --spacing-32: 5.6rem;
-}
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {

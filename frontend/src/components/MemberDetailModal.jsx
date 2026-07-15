@@ -29,7 +29,7 @@ export const MemberDetailModal = ({ isOpen, onClose, member, pooledByUser, adjus
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 leading-tight">{member.userName}</h3>
-              <span className="inline-block text-[10px] bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider mt-0.5">
+              <span className="inline-block text-[8px] bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider mt-0.5">
                 {ROLE_NAMES[member.role] || member.role}
               </span>
             </div>
@@ -48,14 +48,14 @@ export const MemberDetailModal = ({ isOpen, onClose, member, pooledByUser, adjus
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto space-y-5 pr-1 py-1 min-h-0">
           {/* Member Meta */}
-          <div className="space-y-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-semibold">
+          <div className="space-y-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-semibold">
             <div>
-              <span className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Email</span>
+              <span className="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Email</span>
               <span className="text-slate-800 break-all">{member.userEmail || member.email || 'No email provided'}</span>
             </div>
             {member.customTag && (
               <div>
-                <span className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Role Tag / Description</span>
+                <span className="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Role Tag / Description</span>
                 <span className="text-[#056449] font-extrabold">{member.customTag}</span>
               </div>
             )}
@@ -63,26 +63,26 @@ export const MemberDetailModal = ({ isOpen, onClose, member, pooledByUser, adjus
 
           {/* Budget Progress Summary */}
           <div className="border-t border-slate-100 pt-4 space-y-3">
-            <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Individual Budget Status</h4>
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Individual Budget Status</h4>
             
-            <div className="grid grid-cols-2 gap-4 text-sm font-semibold">
+            <div className="grid grid-cols-2 gap-4 text-xs font-semibold">
               <div>
-                <span className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Deposited</span>
+                <span className="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Deposited</span>
                 <span className="text-emerald-600 font-extrabold">₹{totalContributed.toLocaleString()}</span>
               </div>
               <div>
-                <span className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pending</span>
+                <span className="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Pending</span>
                 <span className="text-amber-600 font-extrabold">₹{pending.toLocaleString()}</span>
               </div>
               <div className="col-span-2">
-                <span className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Individual Target</span>
+                <span className="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Individual Target</span>
                 <span className="text-slate-800 font-extrabold">₹{target.toLocaleString()}</span>
               </div>
             </div>
 
             {/* Progress Bar */}
             <div className="space-y-1.5 pt-1">
-              <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider">
+              <div className="flex justify-between text-[9px] font-extrabold uppercase tracking-wider">
                 <span className="text-slate-400">Target Progress</span>
                 <span className="text-[#056449]">{percent.toFixed(0)}%</span>
               </div>

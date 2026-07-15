@@ -496,10 +496,6 @@ const TripDashboard = () => {
             totalExpenses={totalExpenses}
             user={user}
             searchQuery={searchQuery}
-            onExpenseClick={(e) => {
-              setSelectedExpense(e);
-              setShowExpenseDetailModal(true);
-            }}
           />
         )}
 

@@ -82,13 +82,13 @@ export const ContributionsTab = ({
     <div className="space-y-8">
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-3 gap-4 sm:gap-6">
         
         {/* TOTAL COLLECTED */}
-        <div className="col-span-2 sm:col-span-1 bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Collected</span>
-            <h2 className="text-xl sm:text-3xl font-black text-[#056449]">₹{totalPooled.toLocaleString()}</h2>
+            <h2 className="text-sm sm:text-4xl font-black text-[#056449]">₹{totalPooled.toLocaleString()}</h2>
           </div>
           <div className="mt-4 sm:mt-6">
             <div className="w-full bg-slate-100 h-1.5 sm:h-2.5 rounded-full overflow-hidden border border-slate-200/30">
@@ -101,7 +101,7 @@ export const ContributionsTab = ({
         <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Pending</span>
-            <h2 className="text-xl sm:text-3xl font-black text-amber-600">₹{totalPending.toLocaleString()}</h2>
+            <h2 className="text-sm sm:text-4xl font-black text-amber-600">₹{totalPending.toLocaleString()}</h2>
           </div>
           <div className="mt-4 sm:mt-6">
             <span className="text-[9px] sm:text-xs text-slate-455 font-semibold truncate block">
@@ -114,7 +114,7 @@ export const ContributionsTab = ({
         <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <span className="text-slate-455 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider block mb-1.5 sm:mb-4">Milestone</span>
-            <h2 className="text-xl sm:text-3xl font-black text-slate-900">₹{nextMilestone.toLocaleString()}</h2>
+            <h2 className="text-sm sm:text-4xl font-black text-slate-900">₹{nextMilestone.toLocaleString()}</h2>
           </div>
           <div className="mt-4 sm:mt-6 flex">
             <span className="text-[8px] sm:text-[10px] bg-slate-50 border border-slate-200/60 text-slate-600 font-extrabold px-1.5 py-0.5 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 shadow-sm truncate">
@@ -208,7 +208,7 @@ export const ContributionsTab = ({
         <div className="overflow-auto max-h-[300px] pr-1">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-100 text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                 <th className="px-4 py-3 sm:px-6 sm:py-4">Member</th>
                 <th className="px-4 py-3 sm:px-6 sm:py-4">Date</th>
                 <th className="px-4 py-3 sm:px-6 sm:py-4">Amount</th>
@@ -217,7 +217,7 @@ export const ContributionsTab = ({
                 {canManageData && <th className="px-4 py-3 sm:px-6 sm:py-4 text-right">Actions</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm font-semibold text-slate-800">
+            <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-800">
               {filteredContributions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
@@ -239,7 +239,7 @@ export const ContributionsTab = ({
                       {/* Member */}
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#056449] border border-emerald-100 flex items-center justify-center font-bold text-sm">
+                          <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#056449] border border-emerald-100 flex items-center justify-center font-bold text-xs">
                             {initials}
                           </div>
                           <span className="font-extrabold text-slate-900">{name}</span>
@@ -275,11 +275,11 @@ export const ContributionsTab = ({
                       {/* Status */}
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
                         {c.status === 'Pending' ? (
-                          <span className="text-[11.5px] sm:text-xs bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">
+                          <span className="text-[10px] bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">
                             Pending
                           </span>
                         ) : (
-                          <span className="text-[11.5px] sm:text-xs bg-emerald-50 border border-emerald-100 text-[#056449] px-2 py-0.5 rounded-full font-bold">
+                          <span className="text-[10px] bg-emerald-50 border border-emerald-100 text-[#056449] px-2 py-0.5 rounded-full font-bold">
                             Verified
                           </span>
                         )}
@@ -329,8 +329,8 @@ export const ContributionsTab = ({
       </div>
 
       {/* Settlements & Target Lock */}
-      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl  shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 p-4 gap-4">
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)]">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-5 mb-6 gap-4">
           <div>
             <h3 className="text-sm font-extrabold text-slate-900">Settlements & Target Lock</h3>
             <p className="text-[10px] text-slate-455 mt-0.5">Locks adjustment modes and balances the cash ledger</p>
@@ -382,13 +382,13 @@ export const ContributionsTab = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                 <th className="px-6 py-3">Contributor</th>
                 <th className="px-6 py-3">Total Pooled</th>
                 <th className="px-6 py-3">Balance Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm font-semibold text-slate-800">
+            <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-800">
               {members.map(m => {
                 const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
                 const owes = m.owes !== undefined ? m.owes : 0;

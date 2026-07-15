@@ -21,8 +21,7 @@ export const SummaryTab = ({
   availableBalance,
   totalExpenses,
   user,
-  searchQuery,
-  onExpenseClick
+  searchQuery
 }) => {
   const filteredMembers = React.useMemo(() => {
     if (!searchQuery) return members;
@@ -187,11 +186,7 @@ export const SummaryTab = ({
                   }
 
                   return (
-                    <div
-                      key={e.id}
-                      onClick={() => onExpenseClick && onExpenseClick(e)}
-                      className="flex justify-between items-center cursor-pointer hover:bg-slate-50/50 p-1.5 rounded-xl transition duration-150"
-                    >
+                    <div key={e.id} className="flex justify-between items-center border-b border-slate-50 pb-3 last:border-0 last:pb-0">
                       <div className="flex items-center gap-3">
                         {categoryIcon}
                         <div>
@@ -274,7 +269,7 @@ export const SummaryTab = ({
               const barColor = `hsl(${hue}, 85%, 42%)`;
 
               return (
-                <div key={m.id} className="space-y-1">
+                <div key={m.id} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/50 flex items-center justify-center text-slate-700 font-bold text-xs uppercase shadow-sm">
@@ -304,7 +299,7 @@ export const SummaryTab = ({
                       <span className="text-slate-400"> / ₹{Math.round(adjustedTarget).toLocaleString()}</span>
                     </div>
                   </div>
-                  <div className="w-2/3 ml-auto bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/30">
+                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/30">
                     <div
                       className="h-full rounded-full transition-all duration-300"
                       style={{ 
