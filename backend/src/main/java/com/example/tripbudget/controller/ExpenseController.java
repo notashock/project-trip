@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.tripbudget.model.Expense;
+import com.example.tripbudget.model.Contribution;
 import com.example.tripbudget.repository.ExpenseRepository;
+import com.example.tripbudget.repository.ContributionRepository;
 
 @RestController
 @RequestMapping("/api/trips/{tripId}/expenses")
@@ -27,9 +29,16 @@ public class ExpenseController {
     @Autowired
     private ExpenseRepository expenseRepository;
 
+    @Autowired
+    private ContributionRepository contributionRepository;
+
     @GetMapping
     public ResponseEntity<List<Expense>> getExpenses(@PathVariable Long tripId) {
         List<Expense> expenses = expenseRepository.findByTripId(tripId);
+        for (Expense e : expenses) {
+            List<Contribution> linked = contributionRepository.findByExpenseId(e.getId());
+            e.setAddAsContribution(linked != null && !linked.isEmpty());
+        }
         return ResponseEntity.ok(expenses);
     }
 
@@ -37,10 +46,18 @@ public class ExpenseController {
     public ResponseEntity<Expense> addExpense(@PathVariable Long tripId, @RequestBody Expense expense, @RequestAttribute("userId") Long userId) {
         expense.setTripId(tripId);
         expense.setAddedByUserId(userId);
+        if (expense.getMemberId() == null) {
+            expense.setMemberId(userId);
+        }
         if (expense.getDate() == null) {
             expense.setDate(LocalDateTime.now());
         }
         Expense savedExpense = expenseRepository.save(expense);
+        syncContribution(tripId, savedExpense);
+        
+        List<Contribution> linked = contributionRepository.findByExpenseId(savedExpense.getId());
+        savedExpense.setAddAsContribution(linked != null && !linked.isEmpty());
+        
         return ResponseEntity.ok(savedExpense);
     }
 
@@ -66,10 +83,17 @@ public class ExpenseController {
         expense.setPeopleCount(expenseDetails.getPeopleCount());
         expense.setCheckInDate(expenseDetails.getCheckInDate());
         expense.setCheckOutDate(expenseDetails.getCheckOutDate());
+        expense.setMemberId(expenseDetails.getMemberId() != null ? expenseDetails.getMemberId() : expense.getAddedByUserId());
+        expense.setAddAsContribution(expenseDetails.getAddAsContribution());
         if (expenseDetails.getDate() != null) {
             expense.setDate(expenseDetails.getDate());
         }
         Expense updatedExpense = expenseRepository.save(expense);
+        syncContribution(tripId, updatedExpense);
+
+        List<Contribution> linked = contributionRepository.findByExpenseId(updatedExpense.getId());
+        updatedExpense.setAddAsContribution(linked != null && !linked.isEmpty());
+
         return ResponseEntity.ok(updatedExpense);
     }
 
@@ -79,7 +103,40 @@ public class ExpenseController {
         if (expenseOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        
+        // Delete linked contributions first
+        List<Contribution> linked = contributionRepository.findByExpenseId(expenseId);
+        if (linked != null && !linked.isEmpty()) {
+            contributionRepository.deleteAll(linked);
+        }
+
         expenseRepository.deleteById(expenseId);
         return ResponseEntity.ok(Map.of("message", "Expense deleted successfully"));
+    }
+
+    private void syncContribution(Long tripId, Expense expense) {
+        if (Boolean.TRUE.equals(expense.getAddAsContribution())) {
+            List<Contribution> linked = contributionRepository.findByExpenseId(expense.getId());
+            Contribution c;
+            if (linked != null && !linked.isEmpty()) {
+                c = linked.get(0);
+            } else {
+                c = new Contribution();
+                c.setTripId(tripId);
+                c.setExpenseId(expense.getId());
+            }
+            c.setUserId(expense.getMemberId() != null ? expense.getMemberId() : expense.getAddedByUserId());
+            c.setAmount(expense.getAmount());
+            c.setDate(expense.getDate());
+            c.setNote("Expense: " + expense.getTitle());
+            c.setMethod("UPI");
+            c.setStatus("Verified");
+            contributionRepository.save(c);
+        } else {
+            List<Contribution> linked = contributionRepository.findByExpenseId(expense.getId());
+            if (linked != null && !linked.isEmpty()) {
+                contributionRepository.deleteAll(linked);
+            }
+        }
     }
 }

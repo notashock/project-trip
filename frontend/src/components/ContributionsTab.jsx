@@ -19,9 +19,10 @@ export const ContributionsTab = ({
   role,
   pooledByUser,
   adjustedTarget,
-  onContributionClick
+  onContributionClick,
+  searchQuery,
+  setSearchQuery
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [methodFilter, setMethodFilter] = useState('All'); // 'All', 'UPI', 'Cash', 'Card'
   const [statusFilter, setStatusFilter] = useState('All'); // 'All', 'Verified', 'Pending'
   const [showFilters, setShowFilters] = useState(false);
@@ -40,13 +41,20 @@ export const ContributionsTab = ({
   })();
 
   // Filter contributions
-  const filteredContributions = contributions.filter(c => {
-    const memberName = members.find(m => m.userId === c.userId)?.userName || 'Unknown Member';
-    const matchesSearch = memberName.toLowerCase().includes(searchQuery.toLowerCase()) || (c.note || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMethod = methodFilter === 'All' || c.method === methodFilter;
-    const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
-    return matchesSearch && matchesMethod && matchesStatus;
-  });
+  const filteredContributions = contributions
+    .filter(c => {
+      const memberName = members.find(m => m.userId === c.userId)?.userName || 'Unknown Member';
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = memberName.toLowerCase().includes(q) || 
+                            (c.note || '').toLowerCase().includes(q) ||
+                            (c.method || '').toLowerCase().includes(q) ||
+                            (c.status || '').toLowerCase().includes(q) ||
+                            String(c.amount || '').includes(q);
+      const matchesMethod = methodFilter === 'All' || c.method === methodFilter;
+      const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
+      return matchesSearch && matchesMethod && matchesStatus;
+    })
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const handleDelete = async (cId) => {
     if (!window.confirm('Are you sure you want to delete this contribution?')) return;
@@ -210,22 +218,6 @@ export const ContributionsTab = ({
           <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">Contribution History</h3>
           
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
-            {/* Search */}
-            <div className="relative flex-1 sm:flex-initial">
-              <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                placeholder="Search member..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 focus:border-[#056449] focus:bg-white focus:outline-none rounded-xl pl-9 pr-4 py-2.5 text-xs font-semibold text-slate-800 placeholder-slate-400 transition"
-              />
-            </div>
-
             {/* Filter Toggle */}
             <div className="relative">
               <button

@@ -14,6 +14,12 @@ export const CustomSelect = ({ value, onChange, options, disabled, placeholder =
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      dropdownRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [isOpen]);
+
   const selectedOption = options.find(opt => String(opt.value) === String(value));
 
   return (
@@ -37,7 +43,7 @@ export const CustomSelect = ({ value, onChange, options, disabled, placeholder =
       </button>
 
       {isOpen && (
-        <div className="relative z-50 w-full mt-1.5 bg-slate-50/50 border border-slate-200/80 rounded-2xl max-h-60 overflow-y-auto py-1">
+        <div className="absolute z-50 w-full mt-1.5 bg-white border border-slate-150 rounded-xl max-h-60 overflow-y-auto py-1 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.08)]">
           {options.map((opt) => (
             <button
               key={opt.value}

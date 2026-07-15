@@ -33,6 +33,11 @@ public class Expense {
     
     private Long addedByUserId;
 
+    private Long memberId;
+
+    @jakarta.persistence.Transient
+    private Boolean addAsContribution;
+
     private String note;
 
     private String place;

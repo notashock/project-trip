@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CustomSelect } from './CustomSelect';
 import { CustomDateTimePicker } from './CustomDateTimePicker';
 
@@ -7,9 +7,35 @@ export const ExpenseModal = ({
   onClose,
   onSubmit,
   formData,
-  setFormData
+  setFormData,
+  members = [],
+  onQuickAddMember
 }) => {
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [quickName, setQuickName] = useState('');
+  const [quickEmail, setQuickEmail] = useState('');
+  const [quickAdding, setQuickAdding] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleQuickAddSubmit = async () => {
+    if (!quickEmail) {
+      alert('Email is required');
+      return;
+    }
+    setQuickAdding(true);
+    try {
+      const addedUserId = await onQuickAddMember({ email: quickEmail, name: quickName });
+      setFormData({ ...formData, memberId: addedUserId });
+      setShowQuickAdd(false);
+      setQuickName('');
+      setQuickEmail('');
+    } catch (err) {
+      // error is already alerted in parent
+    } finally {
+      setQuickAdding(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
@@ -67,6 +93,75 @@ export const ExpenseModal = ({
                   onChange={(val) => setFormData({ ...formData, date: val })}
                 />
               </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-wider">Paid By</label>
+                {!formData.id && (
+                  <button
+                    type="button"
+                    onClick={() => setShowQuickAdd(!showQuickAdd)}
+                    className="text-xs font-bold text-[#056449] hover:underline cursor-pointer focus:outline-none"
+                  >
+                    {showQuickAdd ? '✕ Cancel' : '+ Quick Add'}
+                  </button>
+                )}
+              </div>
+
+              {showQuickAdd ? (
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3 mb-2">
+                  <div className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">Quick Add Member</div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Name (Optional)"
+                      value={quickName}
+                      onChange={(e) => setQuickName(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="email"
+                      placeholder="Email address"
+                      value={quickEmail}
+                      onChange={(e) => setQuickEmail(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#056449] transition text-xs font-semibold"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleQuickAddSubmit}
+                    disabled={quickAdding}
+                    className="w-full py-2 bg-[#056449] hover:bg-[#04523b] disabled:bg-slate-300 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                  >
+                    {quickAdding ? 'Adding...' : 'Add & Select'}
+                  </button>
+                </div>
+              ) : (
+                <CustomSelect
+                  value={formData.memberId || ''}
+                  onChange={(val) => setFormData({ ...formData, memberId: val })}
+                  options={members.map((m) => ({ value: m.userId, label: m.userName }))}
+                  placeholder="Select Member"
+                  required
+                />
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 py-1">
+              <input
+                type="checkbox"
+                id="addAsContribution"
+                checked={!!formData.addAsContribution}
+                onChange={(e) => setFormData({ ...formData, addAsContribution: e.target.checked })}
+                className="w-4 h-4 text-[#056449] border-slate-300 rounded focus:ring-[#056449] cursor-pointer"
+              />
+              <label htmlFor="addAsContribution" className="text-xs font-semibold text-slate-700 cursor-pointer">
+                Add as contribution for this member
+              </label>
             </div>
 
             {/* Conditional Fields: TRAVEL */}

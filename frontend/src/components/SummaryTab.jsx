@@ -20,8 +20,36 @@ export const SummaryTab = ({
   totalPooled,
   availableBalance,
   totalExpenses,
-  user
+  user,
+  searchQuery
 }) => {
+  const filteredMembers = React.useMemo(() => {
+    if (!searchQuery) return members;
+    const q = searchQuery.toLowerCase();
+    return members.filter(m => {
+      const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
+      const owes = m.owes !== undefined ? m.owes : 0;
+      return (m.userName || '').toLowerCase().includes(q) ||
+             (m.userEmail || '').toLowerCase().includes(q) ||
+             (m.customTag || '').toLowerCase().includes(q) ||
+             String(userPooled).includes(q) ||
+             String(owes).includes(q);
+    });
+  }, [members, searchQuery, pooledByUser]);
+
+  const filteredExpensesForSummary = React.useMemo(() => {
+    if (!searchQuery) return expenses;
+    const q = searchQuery.toLowerCase();
+    return expenses.filter(e => {
+      const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
+      return (e.title || '').toLowerCase().includes(q) ||
+             (e.place || '').toLowerCase().includes(q) ||
+             (e.note || '').toLowerCase().includes(q) ||
+             (payer?.userName || '').toLowerCase().includes(q) ||
+             String(e.amount).includes(q);
+    });
+  }, [expenses, searchQuery, members]);
+
   const myMember = members.find(m => 
     (m.userId && user?.id && m.userId === user.id) || 
     (m.userEmail && user?.email && m.userEmail.toLowerCase() === user.email.toLowerCase())
@@ -122,7 +150,7 @@ export const SummaryTab = ({
           </div>
 
           <div className="space-y-4 sm:space-y-6">
-            {members.map(m => {
+            {filteredMembers.map(m => {
               const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
               const owes = m.owes !== undefined ? m.owes : 0;
               const owed = m.owed !== undefined ? m.owed : 0;
@@ -130,6 +158,9 @@ export const SummaryTab = ({
               const isPaid = owes <= 0;
               const isUnpaid = userPooled === 0;
               const percent = Math.min((userPooled / adjustedTarget) * 100, 100);
+              const clampedHue = Math.max(10, Math.min(90, percent));
+              const hue = ((clampedHue - 10) / 80) * 120;
+              const barColor = `hsl(${hue}, 85%, 42%)`;
 
               return (
                 <div key={m.id} className="space-y-2">
@@ -164,10 +195,11 @@ export const SummaryTab = ({
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/30">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        isPaid ? 'bg-[#056449]' : 'bg-amber-500'
-                      }`}
-                      style={{ width: `${percent}%` }}
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${percent}%`,
+                        backgroundColor: barColor
+                      }}
                     />
                   </div>
                 </div>
@@ -189,13 +221,16 @@ export const SummaryTab = ({
             </div>
 
             <div className="space-y-4">
-              {expenses.length === 0 ? (
+              {filteredExpensesForSummary.length === 0 ? (
                 <div className="text-center py-12 text-slate-400 text-xs">
                   <p>No older expenses yet.</p>
                 </div>
               ) : (
-                expenses.slice(-3).reverse().map(e => {
-                  const payer = members.find(m => m.userId === e.addedByUserId);
+                [...filteredExpensesForSummary]
+                  .sort((a, b) => new Date(b.date) - new Date(a.date))
+                  .slice(0, 3)
+                  .map(e => {
+                    const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
                   let categoryIcon = (
                     <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200/50">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

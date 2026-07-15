@@ -27,6 +27,8 @@ public class Contribution {
     
     private Long userId;
     
+    private Long expenseId;
+    
     private BigDecimal amount;
     
     private LocalDateTime date;

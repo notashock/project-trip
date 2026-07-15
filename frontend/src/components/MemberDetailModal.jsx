@@ -13,6 +13,9 @@ export const MemberDetailModal = ({ isOpen, onClose, member, pooledByUser, adjus
   const target = adjustedTarget || 0;
   const pending = Math.max(target - totalContributed, 0);
   const percent = Math.min((totalContributed / (target || 1)) * 100, 100);
+  const clampedHue = Math.max(10, Math.min(90, percent));
+  const hue = ((clampedHue - 10) / 80) * 120;
+  const barColor = `hsl(${hue}, 85%, 42%)`;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
@@ -48,7 +51,7 @@ export const MemberDetailModal = ({ isOpen, onClose, member, pooledByUser, adjus
           <div className="space-y-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-semibold">
             <div>
               <span className="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Email</span>
-              <span className="text-slate-800 break-all">{member.email || 'No email provided'}</span>
+              <span className="text-slate-800 break-all">{member.userEmail || member.email || 'No email provided'}</span>
             </div>
             {member.customTag && (
               <div>
@@ -84,7 +87,13 @@ export const MemberDetailModal = ({ isOpen, onClose, member, pooledByUser, adjus
                 <span className="text-[#056449]">{percent.toFixed(0)}%</span>
               </div>
               <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/30">
-                <div className="bg-[#056449] h-full rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${percent}%`,
+                    backgroundColor: barColor
+                  }}
+                />
               </div>
             </div>
           </div>

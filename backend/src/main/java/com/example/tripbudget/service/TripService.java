@@ -41,38 +41,34 @@ public class TripService {
             baseTarget = BigDecimal.ZERO;
         }
 
+        List<TripMember> members = tripMemberRepository.findByTripId(tripId);
+        int memberCount = members.isEmpty() ? 1 : members.size();
+
         if (trip.getAdjustForExtra() == null || !trip.getAdjustForExtra()) {
             trip.setAdjustedTarget(baseTarget);
-            tripRepository.save(trip);
-            return;
-        }
-
-        List<TripMember> members = tripMemberRepository.findByTripId(tripId);
-        if (members.isEmpty()) {
-            trip.setAdjustedTarget(baseTarget);
+            trip.setTargetBudget(baseTarget.multiply(BigDecimal.valueOf(memberCount)));
             tripRepository.save(trip);
             return;
         }
 
         BigDecimal target = baseTarget;
-        if (Boolean.TRUE.equals(trip.getAdjustForExtra())) {
-            List<Contribution> contributions = contributionRepository.findByTripId(tripId);
-            contributions.sort(java.util.Comparator.comparing(Contribution::getDate));
-            Map<Long, BigDecimal> rawPooled = new HashMap<>();
+        List<Contribution> contributions = contributionRepository.findByTripId(tripId);
+        contributions.sort(java.util.Comparator.comparing(Contribution::getDate));
+        Map<Long, BigDecimal> rawPooled = new HashMap<>();
 
-            for (Contribution c : contributions) {
-                if (c.getUserId() == null || c.getAmount() == null) continue;
-                rawPooled.put(c.getUserId(), rawPooled.getOrDefault(c.getUserId(), BigDecimal.ZERO).add(c.getAmount()));
-                BigDecimal userRaw = rawPooled.get(c.getUserId());
-                if (userRaw.compareTo(target) > 0) {
-                    BigDecimal extra = userRaw.subtract(target);
-                    BigDecimal increase = extra.divide(new BigDecimal(members.size()), 4, RoundingMode.HALF_UP);
-                    target = target.add(increase);
-                }
+        for (Contribution c : contributions) {
+            if (c.getUserId() == null || c.getAmount() == null) continue;
+            rawPooled.put(c.getUserId(), rawPooled.getOrDefault(c.getUserId(), BigDecimal.ZERO).add(c.getAmount()));
+            BigDecimal userRaw = rawPooled.get(c.getUserId());
+            if (userRaw.compareTo(target) > 0) {
+                BigDecimal extra = userRaw.subtract(target);
+                BigDecimal increase = extra.divide(new BigDecimal(memberCount), 4, RoundingMode.HALF_UP);
+                target = target.add(increase);
             }
         }
 
         trip.setAdjustedTarget(target);
+        trip.setTargetBudget(target.multiply(BigDecimal.valueOf(memberCount)));
         tripRepository.save(trip);
     }
 }

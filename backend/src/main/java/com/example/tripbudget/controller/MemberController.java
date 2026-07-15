@@ -189,7 +189,16 @@ public class MemberController {
         String roleStr = request.get("role");
         member.setCustomTag(request.get("customTag"));
         try {
-            member.setRole(com.example.tripbudget.model.Role.valueOf(roleStr));
+            com.example.tripbudget.model.Role newRole = com.example.tripbudget.model.Role.valueOf(roleStr);
+            if (member.getRole() == com.example.tripbudget.model.Role.ADMIN && newRole != com.example.tripbudget.model.Role.ADMIN) {
+                long adminCount = tripMemberRepository.findByTripId(tripId).stream()
+                        .filter(m -> m.getRole() == com.example.tripbudget.model.Role.ADMIN)
+                        .count();
+                if (adminCount <= 1) {
+                    return ResponseEntity.badRequest().body(Map.of("message", "Cannot change role: A trip must have at least one Admin."));
+                }
+            }
+            member.setRole(newRole);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid role specified"));
         }
@@ -206,7 +215,17 @@ public class MemberController {
             return ResponseEntity.notFound().build();
         }
 
-        Long userId = memberOpt.get().getUserId();
+        TripMember member = memberOpt.get();
+        if (member.getRole() == com.example.tripbudget.model.Role.ADMIN) {
+            long adminCount = tripMemberRepository.findByTripId(tripId).stream()
+                    .filter(m -> m.getRole() == com.example.tripbudget.model.Role.ADMIN)
+                    .count();
+            if (adminCount <= 1) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Cannot remove member: A trip must have at least one Admin."));
+            }
+        }
+
+        Long userId = member.getUserId();
 
         // 1. Delete associated contributions for this member in this trip
         List<Contribution> memberContributions = contributionRepository.findByTripIdAndUserId(tripId, userId);

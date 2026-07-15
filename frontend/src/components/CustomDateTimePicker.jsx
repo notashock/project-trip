@@ -41,6 +41,12 @@ export const CustomDateTimePicker = ({ value, onChange, placeholder = "Select Da
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [isOpen]);
+
   const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
@@ -246,7 +252,7 @@ export const CustomDateTimePicker = ({ value, onChange, placeholder = "Select Da
       </button>
 
       {isOpen && (
-        <div className="relative z-50 w-full mt-2 bg-slate-50/50 border border-slate-200/80 rounded-2xl p-4 flex flex-col gap-4">
+        <div className="absolute z-50 w-full mt-2 bg-white border border-slate-150 rounded-xl p-4 flex flex-col gap-4 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.08)]">
           
           {/* Tab Selector */}
           <div className="flex bg-slate-200/40 p-0.5 rounded-xl border border-slate-200/20">

@@ -2,19 +2,19 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { tripService } from '../services/tripService';
-import { SummaryTab } from './SummaryTab';
-import { ExpensesTab } from './ExpensesTab';
-import { MembersTab } from './MembersTab';
-import { SettingsTab } from './SettingsTab';
-import { ContributionsTab } from './ContributionsTab';
-import Navbar from './Navbar';
-import { CustomSelect } from './CustomSelect';
-import { ContributionModal } from './ContributionModal';
-import { ExpenseModal } from './ExpenseModal';
-import { ExpenseDetailModal } from './ExpenseDetailModal';
-import { ContributionDetailModal } from './ContributionDetailModal';
-import { MemberDetailModal } from './MemberDetailModal';
-import { Footer } from './Footer';
+import { SummaryTab } from '../components/SummaryTab';
+import { ExpensesTab } from '../components/ExpensesTab';
+import { MembersTab } from '../components/MembersTab';
+import { SettingsTab } from '../components/SettingsTab';
+import { ContributionsTab } from '../components/ContributionsTab';
+import Navbar from '../components/Navbar';
+import { CustomSelect } from '../components/CustomSelect';
+import { ContributionModal } from '../components/ContributionModal';
+import { ExpenseModal } from '../components/ExpenseModal';
+import { ExpenseDetailModal } from '../components/ExpenseDetailModal';
+import { ContributionDetailModal } from '../components/ContributionDetailModal';
+import { MemberDetailModal } from '../components/MemberDetailModal';
+import { Footer } from '../components/Footer';
 
 const TripDashboard = () => {
   const { token, user } = useContext(AuthContext);
@@ -52,11 +52,14 @@ const TripDashboard = () => {
     roomsCount: '',
     peopleCount: '',
     checkInDate: '',
-    checkOutDate: ''
+    checkOutDate: '',
+    memberId: '',
+    addAsContribution: false
   });
   const [contributionForm, setContributionForm] = useState({ id: null, userId: '', amount: '', note: '', method: 'UPI', status: 'Verified' });
   const [memberForm, setMemberForm] = useState({ email: '', role: 'CONTRIBUTOR', customTag: '', name: '' });
   const [editMemberForm, setEditMemberForm] = useState({ id: null, role: 'CONTRIBUTOR', customTag: '' });
+  const [searchQuery, setSearchQuery] = useState('');
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showContributionModal, setShowContributionModal] = useState(false);
   const [showMemberModal, setShowMemberModal] = useState(false);
@@ -158,7 +161,9 @@ const TripDashboard = () => {
         roomsCount: expenseForm.category === 'ACCOMMODATION' && expenseForm.roomsCount ? parseInt(expenseForm.roomsCount) : null,
         peopleCount: expenseForm.category === 'ACCOMMODATION' && expenseForm.peopleCount ? parseInt(expenseForm.peopleCount) : null,
         checkInDate: expenseForm.category === 'ACCOMMODATION' && expenseForm.checkInDate ? expenseForm.checkInDate : null,
-        checkOutDate: expenseForm.category === 'ACCOMMODATION' && expenseForm.checkOutDate ? expenseForm.checkOutDate : null
+        checkOutDate: expenseForm.category === 'ACCOMMODATION' && expenseForm.checkOutDate ? expenseForm.checkOutDate : null,
+        memberId: expenseForm.memberId ? parseInt(expenseForm.memberId) : null,
+        addAsContribution: !!expenseForm.addAsContribution
       };
 
       if (expenseForm.id) {
@@ -236,9 +241,39 @@ const TripDashboard = () => {
     }
   };
 
+  const handleQuickAddMember = async ({ email, name }) => {
+    try {
+      const added = await tripService.inviteMember(tripId, {
+        email,
+        name,
+        role: 'CONTRIBUTOR',
+        customTag: 'Added via Quick Add'
+      });
+      setMembers(prev => [...prev, added]);
+      fetchData();
+
+      if (added.temporaryPassword) {
+        setTempPasswordTitle('Account Created Successfully!');
+        setTempPassword(added.temporaryPassword);
+      }
+      return added.userId;
+    } catch (err) {
+      alert(err.message);
+      throw err;
+    }
+  };
+
   const handleEditMemberSubmit = async (e) => {
     e.preventDefault();
     try {
+      const currentMember = members.find(m => m.id === editMemberForm.id);
+      if (currentMember && currentMember.role === 'ADMIN' && editMemberForm.role !== 'ADMIN') {
+        const adminCount = members.filter(m => m.role === 'ADMIN').length;
+        if (adminCount <= 1) {
+          alert('Cannot change role: A trip must have at least one Admin.');
+          return;
+        }
+      }
       await tripService.updateMember(tripId, editMemberForm.id, {
         role: editMemberForm.role,
         customTag: editMemberForm.customTag
@@ -251,6 +286,14 @@ const TripDashboard = () => {
   };
 
   const handleMemberRemove = async (memberId) => {
+    const targetMember = members.find(m => m.id === memberId);
+    if (targetMember && targetMember.role === 'ADMIN') {
+      const adminCount = members.filter(m => m.role === 'ADMIN').length;
+      if (adminCount <= 1) {
+        alert('Cannot remove member: A trip must have at least one Admin.');
+        return;
+      }
+    }
     if (!window.confirm('Remove this member?')) return;
     try {
       await tripService.removeMember(tripId, memberId);
@@ -319,28 +362,61 @@ const TripDashboard = () => {
       {/* Shared Navbar with trip-specific content */}
       <Navbar
         brandOverride={
-          <Link to="/" className="flex items-center gap-2.5 text-xl font-black text-[#056449] tracking-tight flex-shrink-0 group">
-            <svg className="w-4.5 h-4.5 text-slate-400 group-hover:text-[#056449] transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="text-slate-900 truncate max-w-[200px]">{trip?.name || 'Trip'}</span>
-            <span className="text-[10px] bg-emerald-50 text-[#056449] border border-emerald-100 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider hidden lg:inline">
-              {role === 'ADMIN' ? 'Admin' : role === 'MANAGER' ? 'Manager' : 'Viewer'}
-            </span>
-          </Link>
+          <div className="flex items-center gap-2.5 flex-shrink-0 group">
+            <Link to="/" className="text-slate-400 hover:text-[#056449] transition flex-shrink-0">
+              <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </Link>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm sm:text-base font-black text-slate-900 leading-tight truncate max-w-[150px] sm:max-w-[200px]">
+                {trip?.name || 'Trip'}
+              </span>
+              <span className="text-[9px] text-[#056449] font-extrabold uppercase tracking-wider leading-none mt-0.5">
+                {role === 'ADMIN' ? 'Admin' : role === 'MANAGER' ? 'Manager' : 'Viewer'}
+              </span>
+            </div>
+          </div>
         }
         rightActions={
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`transition cursor-pointer ${
-              activeTab === 'settings' ? 'text-[#056449]' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Desktop Navbar Search Bar */}
+            <div className="relative max-w-xs hidden sm:block">
+              <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search trip..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-slate-50 border border-slate-200 focus:border-[#056449] focus:bg-white focus:outline-none rounded-full pl-8 pr-7 py-1.5 text-xs font-semibold text-slate-805 placeholder-slate-400 transition-all duration-200 w-32 md:w-44 lg:w-56"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-2 flex items-center text-slate-450 hover:text-slate-650 focus:outline-none text-xs font-bold"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`transition cursor-pointer ${
+                activeTab === 'settings' ? 'text-[#056449]' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
         }
       >
         {/* Center Tabs */}
@@ -367,7 +443,34 @@ const TripDashboard = () => {
       </Navbar>
 
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-6 mt-12 pb-24 md:pb-12">
+      <div className="max-w-6xl mx-auto px-6 mt-6 sm:mt-12 pb-24 md:pb-12">
+
+        {/* Mobile Search Bar */}
+        {activeTab !== 'settings' && (
+          <div className="relative w-full mb-6 sm:hidden">
+            <span className="absolute inset-y-0 left-3.5 flex items-center text-slate-400">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="Search trip..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-slate-205 focus:border-[#056449] focus:outline-none rounded-full pl-9 pr-8 py-2.5 text-xs font-semibold text-slate-805 placeholder-slate-400 shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-3.5 flex items-center text-slate-450 hover:text-slate-650 focus:outline-none text-xs font-bold"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Tab Contents */}
         {activeTab === 'overview' && (
@@ -392,6 +495,7 @@ const TripDashboard = () => {
             availableBalance={availableBalance}
             totalExpenses={totalExpenses}
             user={user}
+            searchQuery={searchQuery}
           />
         )}
 
@@ -411,6 +515,8 @@ const TripDashboard = () => {
               setSelectedExpense(e);
               setShowExpenseDetailModal(true);
             }}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
         )}
 
@@ -431,6 +537,7 @@ const TripDashboard = () => {
               setSelectedMember(m);
               setShowMemberDetailModal(true);
             }}
+            searchQuery={searchQuery}
           />
         )}
 
@@ -457,6 +564,8 @@ const TripDashboard = () => {
               setSelectedContribution(c);
               setShowContributionDetailModal(true);
             }}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
         )}
 
@@ -615,6 +724,7 @@ const TripDashboard = () => {
         formData={contributionForm}
         setFormData={setContributionForm}
         members={members}
+        onQuickAddMember={handleQuickAddMember}
       />
 
       {/* Expense Modal */}
@@ -624,6 +734,8 @@ const TripDashboard = () => {
         onSubmit={handleExpenseSubmit}
         formData={expenseForm}
         setFormData={setExpenseForm}
+        members={members}
+        onQuickAddMember={handleQuickAddMember}
       />
 
       {/* Expense Detail Modal */}

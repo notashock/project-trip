@@ -11,14 +11,15 @@ export const ExpensesTab = ({
   setShowExpenseModal,
   handleExpenseDelete,
   trip,
-  onExpenseClick
+  onExpenseClick,
+  searchQuery,
+  setSearchQuery
 }) => {
   const targetBudget = trip?.targetBudget || (trip?.targetPerPerson * members.length) || 150000;
   const remainingBudget = (totalPooled || 0) - totalExpenses;
 
   // Filter & Search state
   const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Category filter mapping
   const filterCategories = [
@@ -28,26 +29,29 @@ export const ExpensesTab = ({
     { id: 'ACCOMMODATION', label: 'Accommodation' },
     { id: 'OTHERS', label: 'Others' }
   ];
+  console.log(trip)
 
   // Filtered expenses
   const filteredExpenses = useMemo(() => {
-    return expenses.filter(e => {
+    const filtered = expenses.filter(e => {
       // Category filter
       if (activeFilter !== 'all' && e.category !== activeFilter) return false;
 
       // Search filter — match title, place, note, or payer name
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const payer = members.find(m => m.userId === e.addedByUserId);
+        const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
         const matchesTitle = e.title?.toLowerCase().includes(q);
         const matchesPlace = e.place?.toLowerCase().includes(q);
         const matchesNote = e.note?.toLowerCase().includes(q);
         const matchesPayer = payer?.userName?.toLowerCase().includes(q);
-        if (!matchesTitle && !matchesPlace && !matchesNote && !matchesPayer) return false;
+        const matchesAmount = String(e.amount || '').includes(q);
+        if (!matchesTitle && !matchesPlace && !matchesNote && !matchesPayer && !matchesAmount) return false;
       }
 
       return true;
     });
+    return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [expenses, activeFilter, searchQuery, members]);
 
   // Filtered total for the current view
@@ -77,13 +81,34 @@ export const ExpensesTab = ({
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900">₹{totalExpenses.toLocaleString()}</h2>
           </div>
           <div className="mt-4 sm:mt-6">
-            <div className="flex justify-between text-[11px] sm:text-xs text-slate-450 mb-1.5 sm:mb-2 font-semibold">
-              <span>Budget Progress</span>
-              <span>₹{targetBudget.toLocaleString()}</span>
-            </div>
-            <div className="w-full bg-slate-100 h-2 sm:h-2.5 rounded-full overflow-hidden border border-slate-200/30">
-              <div className="bg-[#056449] h-full rounded-full" style={{ width: `${Math.min((totalExpenses / targetBudget) * 100, 100)}%` }} />
-            </div>
+            {(() => {
+              const actualTarget = targetBudget;
+              const percent = actualTarget > 0 ? (totalPooled / actualTarget) * 100 : 0;
+              const clampedPercent = Math.min(percent, 100);
+
+              // Color interpolation from 10% (Red, hue 0) to 90% (Green, hue 120)
+              const clampedHue = Math.max(10, Math.min(90, percent));
+              const hue = ((clampedHue - 10) / 80) * 120;
+              const barColor = `hsl(${hue}, 85%, 42%)`;
+
+              return (
+                <>
+                  <div className="flex justify-between text-[11px] sm:text-xs text-slate-455 mb-1.5 sm:mb-2 font-semibold flex-wrap gap-2">
+                    <span>Budget Progress (Collected: ₹{totalPooled.toLocaleString()})</span>
+                    <span>Target: ₹{actualTarget.toLocaleString()}</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 sm:h-2.5 rounded-full overflow-hidden border border-slate-200/30">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 ease-out"
+                      style={{
+                        width: `${clampedPercent}%`,
+                        backgroundColor: barColor
+                      }}
+                    />
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 
@@ -153,30 +178,6 @@ export const ExpensesTab = ({
             </button>
           ))}
         </div>
-        <div className="relative w-full sm:w-64">
-          <span className="absolute inset-y-0 left-3.5 flex items-center text-slate-400">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            placeholder="Search expenses..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-full pl-9 pr-4 py-2 text-xs font-semibold focus:outline-none focus:border-[#056449] focus:bg-white transition text-slate-800 placeholder-slate-400"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 transition cursor-pointer"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Filtered results indicator */}
@@ -220,7 +221,9 @@ export const ExpensesTab = ({
                   roomsCount: '',
                   peopleCount: '',
                   checkInDate: '',
-                  checkOutDate: ''
+                  checkOutDate: '',
+                  memberId: user?.id || '',
+                  addAsContribution: false
                 });
                 setShowExpenseModal(true);
               }}
@@ -253,7 +256,7 @@ export const ExpensesTab = ({
         ) : (
           <div className="space-y-4">
             {filteredExpenses.map(e => {
-              const payer = members.find(m => m.userId === e.addedByUserId);
+              const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
               let categoryIcon = (
                 <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200/50">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -319,7 +322,7 @@ export const ExpensesTab = ({
                         <button
                           onClick={(event) => {
                             event.stopPropagation();
-                            setExpenseForm({ id: e.id, title: e.title, amount: e.amount, note: e.note || '', date: e.date ? e.date.substring(0, 16) : '', place: e.place || '', category: e.category || 'OTHERS', foodType: e.foodType || 'OTHERS', travelFrom: e.travelFrom || '', travelTo: e.travelTo || '', travelStartDate: e.travelStartDate ? e.travelStartDate.substring(0, 16) : '', travelEndDate: e.travelEndDate ? e.travelEndDate.substring(0, 16) : '', roomsCount: e.roomsCount || '', peopleCount: e.peopleCount || '', checkInDate: e.checkInDate ? e.checkInDate.substring(0, 16) : '', checkOutDate: e.checkOutDate ? e.checkOutDate.substring(0, 16) : '' });
+                            setExpenseForm({ id: e.id, title: e.title, amount: e.amount, note: e.note || '', date: e.date ? e.date.substring(0, 16) : '', place: e.place || '', category: e.category || 'OTHERS', foodType: e.foodType || 'OTHERS', travelFrom: e.travelFrom || '', travelTo: e.travelTo || '', travelStartDate: e.travelStartDate ? e.travelStartDate.substring(0, 16) : '', travelEndDate: e.travelEndDate ? e.travelEndDate.substring(0, 16) : '', roomsCount: e.roomsCount || '', peopleCount: e.peopleCount || '', checkInDate: e.checkInDate ? e.checkInDate.substring(0, 16) : '', checkOutDate: e.checkOutDate ? e.checkOutDate.substring(0, 16) : '', memberId: e.memberId || e.addedByUserId || '', addAsContribution: !!e.addAsContribution });
                             setShowExpenseModal(true);
                           }}
                           className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-[#056449] hover:bg-emerald-50 transition cursor-pointer"

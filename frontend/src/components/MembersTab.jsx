@@ -12,8 +12,22 @@ export const MembersTab = ({
   setShowMemberModal,
   fetchMemberPassword,
   handleMemberRemove,
-  onMemberClick
+  onMemberClick,
+  searchQuery
 }) => {
+  const filteredMembers = members.filter(m => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
+    const owes = m.owes !== undefined ? m.owes : 0;
+    return (m.userName || '').toLowerCase().includes(q) ||
+           (m.userEmail || '').toLowerCase().includes(q) ||
+           (m.role || '').toLowerCase().includes(q) ||
+           (m.customTag || '').toLowerCase().includes(q) ||
+           String(userPooled).includes(q) ||
+           String(owes).includes(q);
+  });
+
   return (
     <div className="space-y-8">
       {/* Metrics cards */}
@@ -50,7 +64,7 @@ export const MembersTab = ({
             </p>
           </div>
         )}
-        {members.map(m => {
+        {filteredMembers.map(m => {
           const userPooled = m.totalContributed !== undefined ? m.totalContributed : (pooledByUser[m.userId] || 0);
           const owes = m.owes !== undefined ? m.owes : 0;
           const owed = m.owed !== undefined ? m.owed : 0;
@@ -58,6 +72,9 @@ export const MembersTab = ({
           const isPaid = owes <= 0;
           const isUnpaid = userPooled === 0;
           const percent = Math.min((userPooled / adjustedTarget) * 100, 100);
+          const clampedHue = Math.max(10, Math.min(90, percent));
+          const hue = ((clampedHue - 10) / 80) * 120;
+          const barColor = `hsl(${hue}, 85%, 42%)`;
 
           return (
             <div
@@ -115,7 +132,13 @@ export const MembersTab = ({
               </div>
 
               <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200/30">
-                <div className="bg-[#056449] h-full rounded-full" style={{ width: `${percent}%` }} />
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${percent}%`,
+                    backgroundColor: barColor
+                  }}
+                />
               </div>
 
               {isAdmin && (

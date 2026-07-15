@@ -10,7 +10,7 @@ const CATEGORY_NAMES = {
 export const ExpenseDetailModal = ({ isOpen, onClose, expense, members }) => {
   if (!isOpen || !expense) return null;
 
-  const payer = members.find(m => m.userId === expense.userId);
+  const payer = members.find(m => m.userId === (expense.memberId || expense.addedByUserId));
 
   // Helper to format date
   const formatDate = (dateStr) => {
