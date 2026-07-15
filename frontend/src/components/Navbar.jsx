@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Navbar = ({ children, rightActions, brandOverride }) => {
   const { user, logout } = useContext(AuthContext);
+  const { theme, setTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   // Profile dropdown state
@@ -62,7 +64,7 @@ const Navbar = ({ children, rightActions, brandOverride }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200/80 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)]">
+      <header className="sticky top-0 z-40 bg-white dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-900 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)] transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between gap-4">
           
           {/* Left: Brand (logo or override) + page-specific center content */}
@@ -102,14 +104,14 @@ const Navbar = ({ children, rightActions, brandOverride }) => {
               </button>
               
               {showProfileMenu && (
-                <div className="absolute right-0 mt-3 w-56 bg-white border border-slate-100 rounded-3xl p-2 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.08)] z-50">
-                  <div className="px-4 py-3 border-b border-slate-50">
-                    <p className="text-xs font-extrabold text-slate-900">{user?.name}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5 truncate">{user?.email}</p>
+                <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-2 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.08)] z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-4 py-3 border-b border-slate-50 dark:border-slate-800">
+                    <p className="text-xs font-extrabold text-slate-900 dark:text-slate-100">{user?.name}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">{user?.email}</p>
                   </div>
                   <button
                     onClick={() => { navigate('/'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-2xl transition font-bold mt-1.5 cursor-pointer flex items-center gap-2.5"
+                    className="w-full text-left px-4 py-2.5 text-xs text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-900 dark:hover:text-white rounded-2xl transition font-bold mt-1.5 cursor-pointer flex items-center gap-2.5"
                   >
                     <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -118,17 +120,43 @@ const Navbar = ({ children, rightActions, brandOverride }) => {
                   </button>
                   <button
                     onClick={() => { setShowProfileMenu(false); setShowPasswordModal(true); }}
-                    className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-2xl transition font-bold cursor-pointer flex items-center gap-2.5"
+                    className="w-full text-left px-4 py-2.5 text-xs text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-900 dark:hover:text-white rounded-2xl transition font-bold cursor-pointer flex items-center gap-2.5"
                   >
                     <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                     </svg>
                     Change Password
                   </button>
-                  <div className="border-t border-slate-50 mt-1 pt-1">
+
+                  {/* Theme Selector */}
+                  <div className="border-t border-slate-50 dark:border-slate-800 mt-1.5 pt-1.5 px-4 pb-1">
+                    <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mb-2">Theme Mode</p>
+                    <div className="flex bg-slate-100 dark:bg-slate-955 p-0.5 rounded-xl border border-slate-200/40 dark:border-slate-800/80">
+                      {[
+                        { id: 'light', label: 'Light' },
+                        { id: 'system', label: 'System' },
+                        { id: 'dark', label: 'Dark' }
+                      ].map(t => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setTheme(t.id)}
+                          className={`flex-1 py-1 rounded-lg text-[10px] font-bold text-center transition cursor-pointer ${
+                            theme === t.id
+                              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-xs'
+                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-50 dark:border-slate-800 mt-1 pt-1">
                     <button
                       onClick={logout}
-                      className="w-full text-left px-4 py-2.5 text-xs text-rose-600 hover:bg-rose-50 rounded-2xl transition font-bold cursor-pointer flex items-center gap-2.5"
+                      className="w-full text-left px-4 py-2.5 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-2xl transition font-bold cursor-pointer flex items-center gap-2.5"
                     >
                       <svg className="w-3.5 h-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

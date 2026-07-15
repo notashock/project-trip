@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 import { api } from '../services/api';
 
 const AuthPage = () => {
@@ -14,7 +15,35 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useContext(AuthContext);
+  const { theme, setTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
+
+  const [serverStatus, setServerStatus] = useState('checking'); // 'checking', 'online', 'offline'
+  const [isPinging, setIsPinging] = useState(false);
+
+  const checkServerHealth = async () => {
+    setIsPinging(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/auth/health`);
+      if (res.ok) {
+        setServerStatus('online');
+      } else {
+        setServerStatus('offline');
+      }
+    } catch (err) {
+      setServerStatus('offline');
+    } finally {
+      setIsPinging(false);
+    }
+  };
+
+  useEffect(() => {
+    checkServerHealth();
+    const interval = setInterval(() => {
+      checkServerHealth();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const resetForm = () => {
     setEmail('');
@@ -102,6 +131,53 @@ const AuthPage = () => {
           </p>
         </div>
 
+        {/* Server Status Indicator */}
+        <div className="flex justify-center mb-6 min-h-[48px]">
+          {serverStatus === 'checking' && (
+            <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/50 px-3.5 py-1.5 rounded-full shadow-xs text-[10px] font-bold text-slate-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
+              <span>Checking backend connection...</span>
+            </div>
+          )}
+          {serverStatus === 'online' && (
+            <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-[#056449] px-3.5 py-1.5 rounded-full shadow-xs text-[10px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#056449]" />
+              <span>Server Online</span>
+            </div>
+          )}
+          {serverStatus === 'offline' && (
+            <div className="flex flex-col items-center gap-2">
+              <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 text-rose-600 px-3.5 py-1.5 rounded-full shadow-xs text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                <span>Server Offline</span>
+              </div>
+              <button
+                type="button"
+                disabled={isPinging}
+                onClick={checkServerHealth}
+                className="text-[9px] text-[#056449] hover:underline font-extrabold uppercase tracking-wider flex items-center gap-1 cursor-pointer disabled:opacity-50"
+              >
+                {isPinging ? (
+                  <>
+                    <svg className="animate-spin h-2.5 w-2.5 text-[#056449]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Pinging...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89H18" />
+                    </svg>
+                    Trigger Health Ping
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Auth Card */}
         <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl shadow-[0_8px_40px_-8px_rgba(0,0,0,0.04)] overflow-hidden">
           
@@ -137,16 +213,29 @@ const AuthPage = () => {
 
           {/* Form Content */}
           <div className="p-5 sm:p-8">
-            {/* Heading */}
-            <div className="mb-5 sm:mb-7">
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                {activeTab === 'login' ? 'Welcome back' : 'Get started'}
-              </h2>
-              <p className="text-xs text-slate-400 font-semibold mt-1">
-                {activeTab === 'login'
-                  ? 'Sign in to manage your trip budgets & expenses'
-                  : 'Create your account and start planning trips'}
-              </p>
+            {/* Theme Toggle */}
+            <div className="mb-6 flex items-center justify-between bg-slate-50 dark:bg-slate-950 p-2.5 rounded-2xl border border-slate-200/40 dark:border-slate-800/80">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider pl-1.5">Theme Preferences</span>
+              <div className="flex bg-slate-100 dark:bg-slate-900 p-0.5 rounded-xl border border-slate-200/20 dark:border-slate-800">
+                {[
+                  { id: 'light', label: 'Light' },
+                  { id: 'system', label: 'System' },
+                  { id: 'dark', label: 'Dark' }
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTheme(t.id)}
+                    className={`px-3 py-1 rounded-lg text-[10px] font-bold text-center transition cursor-pointer ${
+                      theme === t.id
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-xs'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Error Message */}
