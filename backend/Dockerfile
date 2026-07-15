@@ -21,4 +21,4 @@ COPY --from=builder /app/target/tripbudget-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 
 # Run the spring boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "echo \"[DEBUG] DB_URL is: $DB_URL\" && java -jar app.jar"]

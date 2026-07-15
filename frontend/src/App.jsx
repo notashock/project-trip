@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import TripDashboard from './pages/TripDashboard';
 import OfflineOverlay from './components/OfflineOverlay';
+import { addOfflineListener, removeOfflineListener, getIsOffline, setOnline, setOffline } from './services/api';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -35,7 +36,7 @@ function AppContent({ isServerOffline, setIsServerOffline }) {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {isServerOffline && !isAuthPage && (
-        <OfflineOverlay onOnline={() => setIsServerOffline(false)} />
+        <OfflineOverlay onOnline={() => setOnline()} />
       )}
     </>
   );
@@ -48,31 +49,41 @@ function App() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/auth/health`);
       if (!res.ok) {
-        setIsServerOffline(true);
+        setOffline();
       } else {
-        setIsServerOffline(false);
+        setOnline();
       }
     } catch (err) {
-      setIsServerOffline(true);
+      setOffline();
     }
   };
 
   useEffect(() => {
+    const handleOfflineChange = (offline) => {
+      setIsServerOffline(offline);
+    };
+
+    addOfflineListener(handleOfflineChange);
+    setIsServerOffline(getIsOffline());
+
     checkInitialConnection();
     const interval = setInterval(async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/auth/health`);
         if (!res.ok) {
-          setIsServerOffline(true);
+          setOffline();
         } else {
-          setIsServerOffline(false);
+          setOnline();
         }
       } catch (err) {
-        setIsServerOffline(true);
+        setOffline();
       }
     }, 10000);
 
-    return () => clearInterval(interval);
+    return () => {
+      removeOfflineListener(handleOfflineChange);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
