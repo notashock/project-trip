@@ -153,8 +153,8 @@ export const ExpensesTab = ({
       </div>
 
       {/* Combined Expenses Log & Filters Container */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-100/60">
+      <div className="bg-white border border-slate-100 rounded-3xl p-2 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-2 border-b border-slate-100/60">
           <div>
             <h3 className="font-extrabold text-slate-900 text-lg">Expenses Log</h3>
             <p className="text-[10px] text-slate-400 font-semibold uppercase mt-0.5 tracking-wider">Group Transactions</p>
@@ -257,7 +257,7 @@ export const ExpensesTab = ({
             )}
           </div>
         ) : (
-          <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+          <div className="space-y-4 max-h-[380px] overflow-y-auto px-1">
             {filteredExpenses.map(e => {
               const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
               let categoryIcon = (
@@ -297,7 +297,7 @@ export const ExpensesTab = ({
                 <div
                   key={e.id}
                   onClick={() => onExpenseClick && onExpenseClick(e)}
-                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 last:border-0 last:pb-0 hover:bg-slate-50/50 p-3 sm:p-2 rounded-2xl transition duration-150 cursor-pointer gap-2.5 sm:gap-0"
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50/20 border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow hover:border-[#056449]/20 transition-all duration-200 cursor-pointer gap-2.5 sm:gap-0"
                 >
                   <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
                     <div className="flex-shrink-0">

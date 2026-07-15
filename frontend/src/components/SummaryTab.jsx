@@ -130,7 +130,7 @@ export const SummaryTab = ({
       {/* Main Grid split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Left Column: Recent Expenses */}
-        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-[0_4px_25px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center border-b border-slate-100 pb-4 sm:pb-5 mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export const SummaryTab = ({
                 </div>
               ) : (
                 [...filteredExpensesForSummary]
-                  .sort((a, b) => new Date(b.date) - new Date(a.date))
+                  .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
                   .slice(0, 5)
                   .map(e => {
                     const payer = members.find(m => m.userId === (e.memberId || e.addedByUserId));
@@ -186,7 +186,7 @@ export const SummaryTab = ({
                   }
 
                   return (
-                    <div key={e.id} className="flex justify-between items-center border-b border-slate-50 pb-3 last:border-0 last:pb-0">
+                    <div key={e.id} className="flex justify-between items-center bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow transition duration-200">
                       <div className="flex items-center gap-3">
                         {categoryIcon}
                         <div>

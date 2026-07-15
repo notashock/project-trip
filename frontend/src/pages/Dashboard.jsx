@@ -170,7 +170,7 @@ const Dashboard = () => {
       </Navbar>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 sm:mt-12">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 mt-4 sm:mt-8">
 
         {/* Mobile Search Bar */}
         <div className="relative w-full mb-6 sm:hidden">
